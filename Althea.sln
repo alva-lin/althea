@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Althea", "Althea\Althea.csproj", "{867E1DE2-3435-4D6C-8266-D9F1F18ECA47}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00.Solution Items", "00.Solution Items", "{B3569B2B-7502-4B8A-BDE3-1AD658223232}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01.Infrastructure", "01.Infrastructure", "{EA6B913D-3FC3-49E8-B870-5CECC3DE4CD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Althea.Infrastructure", "Infrastructure\Althea.Infrastructure\Althea.Infrastructure.csproj", "{395DDD48-9596-4DA0-A817-0B033D840699}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Althea.Infrastructure.AspNetCore", "Infrastructure\Althea.Infrastructure.AspNetCore\Althea.Infrastructure.AspNetCore.csproj", "{45867559-A163-42E0-B173-CCD6420CD672}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Althea.Infrastructure.EntityFrameworkCore", "Infrastructure\Althea.Infrastructure.EntityFrameworkCore\Althea.Infrastructure.EntityFrameworkCore.csproj", "{0F450E9E-F8BC-4F2A-A646-08844B5191BA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{867E1DE2-3435-4D6C-8266-D9F1F18ECA47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{867E1DE2-3435-4D6C-8266-D9F1F18ECA47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{867E1DE2-3435-4D6C-8266-D9F1F18ECA47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{867E1DE2-3435-4D6C-8266-D9F1F18ECA47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{395DDD48-9596-4DA0-A817-0B033D840699}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{395DDD48-9596-4DA0-A817-0B033D840699}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{395DDD48-9596-4DA0-A817-0B033D840699}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{395DDD48-9596-4DA0-A817-0B033D840699}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45867559-A163-42E0-B173-CCD6420CD672}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45867559-A163-42E0-B173-CCD6420CD672}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45867559-A163-42E0-B173-CCD6420CD672}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45867559-A163-42E0-B173-CCD6420CD672}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F450E9E-F8BC-4F2A-A646-08844B5191BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F450E9E-F8BC-4F2A-A646-08844B5191BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F450E9E-F8BC-4F2A-A646-08844B5191BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F450E9E-F8BC-4F2A-A646-08844B5191BA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{395DDD48-9596-4DA0-A817-0B033D840699} = {EA6B913D-3FC3-49E8-B870-5CECC3DE4CD8}
+		{45867559-A163-42E0-B173-CCD6420CD672} = {EA6B913D-3FC3-49E8-B870-5CECC3DE4CD8}
+		{0F450E9E-F8BC-4F2A-A646-08844B5191BA} = {EA6B913D-3FC3-49E8-B870-5CECC3DE4CD8}
+	EndGlobalSection
+EndGlobal
