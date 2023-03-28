@@ -1,3 +1,8 @@
+using Althea.Data;
+using Althea.Infrastructure.EntityFrameworkCore;
+
+using Microsoft.EntityFrameworkCore;
+
 using Serilog;
 
 var originConfiguration = new ConfigurationBuilder()
@@ -46,6 +51,10 @@ try
     builder.Services.AddJwtBearer(configuration);
 
     builder.Services.AddByLifeScope("Althea");
+
+    builder.Services.AddScoped<IAuditInfoProvider, UnknownAuditInfoProvider>();
+    builder.Services.AddDbContext<AltheaDbContext>(optionsBuilder =>
+        optionsBuilder.UseNpgsql(configuration.GetConnectionString("Althea")));
 
 
     var app = builder.Build();

@@ -9,9 +9,13 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
         <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -21,7 +25,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Althea.Data\Althea.Data.csproj" />
       <ProjectReference Include="..\Infrastructure\Althea.Infrastructure.AspNetCore\Althea.Infrastructure.AspNetCore.csproj" />
+      <ProjectReference Include="..\Infrastructure\Althea.Infrastructure.EntityFrameworkCore\Althea.Infrastructure.EntityFrameworkCore.csproj" />
     </ItemGroup>
 
 </Project>

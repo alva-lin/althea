@@ -1,4 +1,6 @@
-﻿using Althea.Infrastructure.EntityFrameworkCore.Entities;
+﻿using System.Reflection;
+
+using Althea.Infrastructure.EntityFrameworkCore.Entities;
 
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -13,11 +15,16 @@ public interface IAuditInfoProvider
     string CurrentUser { get; }
 }
 
-public class BasicDbContext : DbContext
+public class UnknownAuditInfoProvider : IAuditInfoProvider
+{
+    public string CurrentUser => "Unknown";
+}
+
+public abstract class BasicDbContext : DbContext
 {
     protected readonly IAuditInfoProvider AuditInfoProvider;
 
-    public BasicDbContext(DbContextOptions options, IAuditInfoProvider auditInfoProvider)
+    protected BasicDbContext(DbContextOptions options, IAuditInfoProvider auditInfoProvider)
         : base(options)
     {
         AuditInfoProvider          =  auditInfoProvider;
@@ -25,11 +32,18 @@ public class BasicDbContext : DbContext
         ChangeTracker.Tracked      += StateChangedAndTrackedEvent;
     }
 
+    /// <summary>
+    /// 获取所有需要注册的实体配置程序集
+    /// </summary>
+    /// <returns></returns>
+    protected abstract Assembly[] GetModelAssemblies();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder
+            .ConfigureBaseEntityTypes(GetModelAssemblies())
             .ApplyAuditInfo()
             .ApplyUtcDateTimeConverter()
             .AddDateOnlySupport()
