@@ -1,4 +1,4 @@
-﻿namespace Alva.Toolkit.AspNetCore.Authentication;
+﻿namespace Althea.Infrastructure.AspNetCore.Authentication;
 
 /// <summary>
 ///     Jwt 配置

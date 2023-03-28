@@ -1,49 +1,79 @@
-using Althea.Infrastructure.DependencyInjection;
+using Serilog;
 
-using Alva.Toolkit.AspNetCore.Extensions;
-using Alva.Toolkit.AspNetCore.Wrapper;
+var originConfiguration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile(path: "appsettings.json")
+    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true)
+    .Build();
 
-var builder       = WebApplication.CreateBuilder(args);
-var configuration = builder.Configuration;
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(originConfiguration)
+    .CreateBootstrapLogger();
 
-// Add services to the container.
-
-builder.Services.AddControllers(options =>
+try
 {
-    options.Filters.Add<ModelValidFilter>();
-}).AddJsonOptions(options =>
-{
-    options.ConfigureDefaultOptions();
-});
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.IncludeAllXmlComments();
-});
+    Log.Information("Application starting up...");
 
-builder.Services.AddTransient(typeof(Lazy<>));
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddCorsSetting(configuration);
-builder.Services.AddJwtBearer(configuration);
+    var builder       = WebApplication.CreateBuilder(args);
+    var configuration = builder.Configuration;
 
-builder.Services.AddByLifeScope("Althea");
+    builder.Host.UseSerilog(
+        (context, services, configuration) => configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+        );
+
+    // Add services to the container.
+
+    builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<ModelValidFilter>();
+    }).AddJsonOptions(options =>
+    {
+        options.ConfigureDefaultOptions();
+    });
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(options =>
+    {
+        options.IncludeAllXmlComments();
+    });
+
+    builder.Services.AddTransient(typeof(Lazy<>));
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddCorsSetting(configuration);
+    builder.Services.AddJwtBearer(configuration);
+
+    builder.Services.AddByLifeScope("Althea");
 
 
-var app = builder.Build();
+    var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSerilogRequestLogging();
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseBasicException();
+    app.UseCors();
+
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
 }
-
-app.UseBasicException();
-app.UseCors();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.Information("Application terminated gracefully");
+    Log.CloseAndFlush();
+}

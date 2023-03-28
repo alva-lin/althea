@@ -1,9 +1,8 @@
-﻿using Althea.Infrastructure;
-using Althea.Infrastructure.Response;
+﻿using Althea.Infrastructure.Response;
 
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Alva.Toolkit.AspNetCore.Wrapper;
+namespace Althea.Infrastructure.AspNetCore.Wrapper;
 
 public class ModelValidFilter : IAsyncResultFilter
 {

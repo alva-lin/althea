@@ -1,11 +1,10 @@
-﻿using Althea.Infrastructure;
-using Althea.Infrastructure.Extensions;
+﻿using Althea.Infrastructure.Extensions;
 using Althea.Infrastructure.Response;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Alva.Toolkit.AspNetCore.Wrapper;
+namespace Althea.Infrastructure.AspNetCore.Wrapper;
 
 public class BasicExceptionMiddleware
 {

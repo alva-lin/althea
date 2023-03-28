@@ -1,4 +1,4 @@
-﻿namespace Alva.Toolkit.AspNetCore.Cors;
+﻿namespace Althea.Infrastructure.AspNetCore.Cors;
 
 /// <summary>
 ///     Cors 配置

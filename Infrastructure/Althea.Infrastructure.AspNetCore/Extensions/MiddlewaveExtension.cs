@@ -1,8 +1,8 @@
-﻿using Alva.Toolkit.AspNetCore.Wrapper;
+﻿using Althea.Infrastructure.AspNetCore.Wrapper;
 
 using Microsoft.AspNetCore.Builder;
 
-namespace Alva.Toolkit.AspNetCore.Extensions;
+namespace Althea.Infrastructure.AspNetCore.Extensions;
 
 public static class MiddlewaveExtension
 {

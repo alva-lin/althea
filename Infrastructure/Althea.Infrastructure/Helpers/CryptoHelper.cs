@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Althea.Infrastructure.Helper;
+namespace Althea.Infrastructure.Helpers;
 
 public static class CryptoHelper
 {

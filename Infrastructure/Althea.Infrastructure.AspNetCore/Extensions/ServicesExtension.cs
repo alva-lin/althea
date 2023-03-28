@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 
-using Alva.Toolkit.AspNetCore.Authentication;
-using Alva.Toolkit.AspNetCore.Cors;
+using Althea.Infrastructure.AspNetCore.Authentication;
+using Althea.Infrastructure.AspNetCore.Cors;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Alva.Toolkit.AspNetCore.Extensions;
+namespace Althea.Infrastructure.AspNetCore.Extensions;
 
 public static class ServicesExtension
 {

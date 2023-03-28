@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace Alva.Toolkit.AspNetCore.Extensions;
+namespace Althea.Infrastructure.AspNetCore.Extensions;
 
 public static class JsonExtension
 {

@@ -1,5 +1,3 @@
-using Althea.Infrastructure.Response;
-
 using Microsoft.AspNetCore.Mvc;
 
 namespace Althea.Controllers;
