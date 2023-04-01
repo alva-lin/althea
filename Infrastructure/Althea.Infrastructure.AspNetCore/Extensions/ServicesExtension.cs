@@ -16,17 +16,13 @@ public static class ServicesExtension
 {
     public static void IncludeAllXmlComments(this SwaggerGenOptions options)
     {
-        var basePath = Directory.GetParent(Environment.CurrentDirectory);
-        if (basePath is { Exists: true })
-        {
-            var currentAssembly = Assembly.GetCallingAssembly();
-            var xmlDocs = currentAssembly.GetReferencedAssemblies()
-                .Union(new[] { currentAssembly.GetName() })
-                .Select(a => Path.Combine(basePath.FullName, a.Name!, $"{a.Name}.xml"))
-                .Where(File.Exists)
-                .ToArray();
-            Array.ForEach(xmlDocs, s => options.IncludeXmlComments(s));
-        }
+        var currentAssembly = Assembly.GetCallingAssembly();
+        var xmlDocs = currentAssembly.GetReferencedAssemblies()
+            .Union(new[] { currentAssembly.GetName() })
+            .Select(a => Path.Combine(AppContext.BaseDirectory, $"{a.Name}.xml"))
+            .Where(File.Exists)
+            .ToArray();
+        Array.ForEach(xmlDocs, item => options.IncludeXmlComments(item, true));
     }
 
     public static IServiceCollection AddJwtBearer(this IServiceCollection services, IConfiguration configuration)

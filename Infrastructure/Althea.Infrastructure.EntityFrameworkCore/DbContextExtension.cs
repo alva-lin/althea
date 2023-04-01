@@ -23,13 +23,27 @@ public static class DbContextExtension
                     t is { IsClass: true, IsAbstract: false }
                  && t.IsAssignableTo(typeof(IBasicEntity))))
             .Distinct();
+
         foreach (var entityType in entityTypes)
         {
             var tKey = entityType.GetInterfaces()
                 .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == basicEntityType)
                 .GetGenericArguments()[0];
-            var entityConfigurationType
-                = typeof(BasicEntityConfiguration<,>).MakeGenericType(entityType, tKey);
+
+            Type entityConfigurationType;
+
+            if (entityType.IsAssignableTo(typeof(IAuditable)))
+            {
+                var tIAudit = entityType.GetInterface(typeof(IBasicEntity<,>).Name)!.GetGenericArguments()[1];
+
+                entityConfigurationType
+                    = typeof(BasicEntityWithAuditConfiguration<,,>).MakeGenericType(entityType, tKey, tIAudit);
+            }
+            else
+            {
+                entityConfigurationType = typeof(BasicEntityConfiguration<,>).MakeGenericType(entityType, tKey);
+            }
+
             var entityConfiguration = Activator.CreateInstance(entityConfigurationType);
             modelBuilder.ApplyConfiguration((dynamic)entityConfiguration!);
         }
@@ -56,7 +70,8 @@ public static class DbContextExtension
         {
             foreach (var property in entityType.GetProperties())
             {
-                if (property.ClrType.IsAssignableFrom(typeof(IAudit)))
+                if (property.ClrType is { IsClass: true } &&
+                    property.ClrType.IsAssignableFrom(typeof(IAudit)))
                 {
                     builder.Entity(entityType.ClrType).OwnsOne(property.ClrType, "Audit", navigationBuilder =>
                     {

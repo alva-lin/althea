@@ -40,21 +40,19 @@ public static class LifeScopeExtension
 
             foreach (var attr in lifeScopeAttrs)
             {
-                var implements = type.GetInterfaces().Where(iType => !iType.IsGenericType)
-                    .Intersect(attr.Types)
-                    .Union(new []{ type });
-                foreach (var implement in implements)
+                var interfaces = attr.Types.Union(new []{ type });
+                foreach (var iType in interfaces)
                 {
                     switch (attr.Scope)
                     {
                         case LifeScope.Singleton:
-                            services.AddTransient(implement, type);
+                            services.AddTransient(iType, type);
                             break;
                         case LifeScope.Scope:
-                            services.AddScoped(implement, type);
+                            services.AddScoped(iType, type);
                             break;
                         case LifeScope.Transient:
-                            services.AddTransient(implement, type);
+                            services.AddTransient(iType, type);
                             break;
                     }
                 }

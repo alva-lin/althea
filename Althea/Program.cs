@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 using Serilog;
 
+Environment.CurrentDirectory = AppContext.BaseDirectory;
+
 var originConfiguration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
+    .SetBasePath(AppContext.BaseDirectory)
     .AddJsonFile(path: "appsettings.json")
     .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true)
     .Build();
@@ -56,6 +58,7 @@ try
     builder.Services.AddDbContext<AltheaDbContext>(optionsBuilder =>
         optionsBuilder.UseNpgsql(configuration.GetConnectionString("Althea")));
 
+    builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(AltheaDbContext).Assembly);
 
     var app = builder.Build();
 

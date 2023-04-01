@@ -36,7 +36,6 @@ public record PaginatedList<T>
     /// <param name="source">需要获取分页数组的 <see cref="IQueryable{T}"/></param>
     /// <param name="skip">跳过的数量</param>
     /// <param name="take">获取的数量</param>
-    /// <typeparam name="T">数据源的类型</typeparam>
     /// <returns></returns>
     public static PaginatedList<T> Create(IQueryable<T> source, int skip, int take)
     {

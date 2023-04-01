@@ -81,33 +81,27 @@ public abstract class BasicDbContext : DbContext
 
     private void SetAuditInfo(object? sender, EntityEntryEventArgs e)
     {
-        switch (e.Entry.State)
+        if (e.Entry.Entity is IAuditable auditable)
         {
-            case EntityState.Deleted:
-                if (e.Entry.Entity is IAuditable<DeletableAudit> deletableAudit)
-                {
-                    deletableAudit.Audit.IsDelete    = true;
-                    deletableAudit.Audit.DeletedTime = DateTime.UtcNow;
-                    deletableAudit.Audit.DeletedBy   = AuditInfoProvider.CurrentUser;
-                }
-                break;
-            case EntityState.Modified:
-                if (e.Entry.Entity is IAuditable<EditableAudit> editableAudit)
-                {
-                    editableAudit.Audit.ModifiedTime = DateTime.UtcNow;
-                    editableAudit.Audit.ModifiedBy   = AuditInfoProvider.CurrentUser;
-                }
-                break;
-            case EntityState.Added:
-                if (e.Entry.Entity is IAuditable<BasicAudit> basicAudit)
-                {
-                    basicAudit.Audit = new()
-                    {
-                        CreationTime = DateTime.UtcNow,
-                        CreatedBy    = AuditInfoProvider.CurrentUser
-                    };
-                }
-                break;
+            switch (e.Entry.State)
+            {
+                case EntityState.Deleted:
+                    var deletableAudit = (DeletableAudit)auditable.Audit;
+                    deletableAudit.IsDelete    = true;
+                    deletableAudit.DeletedTime = DateTime.UtcNow;
+                    deletableAudit.DeletedBy   = AuditInfoProvider.CurrentUser;
+                    break;
+                case EntityState.Modified:
+                    var editableAudit = (EditableAudit)auditable.Audit;
+                    editableAudit.ModifiedTime = DateTime.UtcNow;
+                    editableAudit.ModifiedBy   = AuditInfoProvider.CurrentUser;
+                    break;
+                case EntityState.Added:
+                    var basicAudit = (BasicAudit)auditable.Audit;
+                    basicAudit.CreationTime = DateTime.UtcNow;
+                    basicAudit.CreatedBy    = AuditInfoProvider.CurrentUser;
+                    break;
+            }
         }
     }
 

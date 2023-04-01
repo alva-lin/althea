@@ -27,7 +27,7 @@ public class BasicExceptionMiddleware
         catch (BasicException e)
         {
             ResponseResult<object> result = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" ?
-                ResponseResult.Error<object>(null, e.Code, e.Message, e.StackTrace) :
+                ResponseResult.Error<object>(e.ErrorInfos ?? null, e.Code, e.Message, e.StackTrace) :
                 ResponseResult.Error<object>(null, e.Code, e.Message);
 
             await context.Response.WriteAsJsonAsync(result, cancellationToken);

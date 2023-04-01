@@ -5,8 +5,8 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["Althea/Althea.csproj", "Althea/"]
-RUN dotnet restore "Althea/Althea.csproj"
+COPY ["backend/Althea/Althea.csproj", "Althea/"]
+RUN dotnet restore "backend/Althea/Althea.csproj"
 COPY . .
 WORKDIR "/src/Althea"
 RUN dotnet build "Althea.csproj" -c Release -o /app/build
