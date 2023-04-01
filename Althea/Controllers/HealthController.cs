@@ -20,4 +20,10 @@ public class HealthController : BasicApiController
     {
         return Ok();
     }
+
+    [HttpGet("[action]")]
+    public IActionResult GetTime()
+    {
+        return Ok(new { DateTime.Now });
+    }
 }
