@@ -4,8 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Althea", "Althea\Althea.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00.Solution Items", "00.Solution Items", "{B3569B2B-7502-4B8A-BDE3-1AD658223232}"
 	ProjectSection(SolutionItems) = preProject
-		.dockerignore = .dockerignore
 		.gitignore = .gitignore
+		..\.dockerignore = ..\.dockerignore
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01.Infrastructure", "01.Infrastructure", "{EA6B913D-3FC3-49E8-B870-5CECC3DE4CD8}"

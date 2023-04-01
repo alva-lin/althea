@@ -61,6 +61,7 @@ try
     builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(AltheaDbContext).Assembly);
 
     var app = builder.Build();
+    Log.Information($"running in {app.Environment.EnvironmentName} environment");
 
     app.UseSerilogRequestLogging();
 

@@ -27,12 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Althea.Data\Althea.Data.csproj" />
       <ProjectReference Include="..\Infrastructure\Althea.Infrastructure.AspNetCore\Althea.Infrastructure.AspNetCore.csproj" />
       <ProjectReference Include="..\Infrastructure\Althea.Infrastructure.EntityFrameworkCore\Althea.Infrastructure.EntityFrameworkCore.csproj" />

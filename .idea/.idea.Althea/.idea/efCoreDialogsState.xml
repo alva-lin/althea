@@ -7,6 +7,7 @@
         <entry key="Common:ff7d5d71-5f4d-4ada-bd8d-e29b7db236a6:dbContext" value="Althea.Data.AltheaDbContext" />
         <entry key="Common:noBuild" value="false" />
         <entry key="Common:outputFolder" value="Migrations" />
+        <entry key="Common:useDefaultConnection" value="true" />
       </map>
     </option>
   </component>
