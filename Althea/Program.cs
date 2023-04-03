@@ -1,7 +1,13 @@
+using Althea;
+using Althea.Controllers;
+using Althea.Core.Services;
 using Althea.Data;
 using Althea.Infrastructure.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+
+using OpenAI.GPT3.Extensions;
 
 using Serilog;
 
@@ -32,7 +38,6 @@ try
         );
 
     // Add services to the container.
-
     builder.Services.AddControllers(options =>
     {
         options.Filters.Add<ModelValidFilter>();
@@ -40,6 +45,12 @@ try
     {
         options.ConfigureDefaultOptions();
     });
+    builder.Services.AddSignalR();
+    builder.Services.Configure<HubOptions>(options =>
+    {
+        // configure hub options
+    });
+
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
@@ -60,7 +71,16 @@ try
 
     builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(AltheaDbContext).Assembly);
 
+    builder.Services.Configure<SystemOption>(configuration.GetSection(nameof(SystemOption)));
+
+    builder.Services.AddOpenAIService(options =>
+    {
+        options.ApiKey = configuration["OpenAI:ApiKey"]!;
+    });
+
     var app = builder.Build();
+
+    // ReSharper disable once TemplateIsNotCompileTimeConstantProblem
     Log.Information($"running in {app.Environment.EnvironmentName} environment");
 
     app.UseSerilogRequestLogging();
@@ -78,6 +98,7 @@ try
     app.UseAuthorization();
 
     app.MapControllers();
+    app.MapHub<ChatHub>("/hub/chat");
 
     app.Run();
 }

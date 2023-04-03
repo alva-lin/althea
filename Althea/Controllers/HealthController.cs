@@ -15,15 +15,13 @@ public class HealthController : BasicApiController
 
     }
 
+    /// <summary>
+    /// 心跳检测
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("[action]")]
     public IActionResult HeartBeat()
     {
         return Ok();
-    }
-
-    [HttpGet("[action]")]
-    public IActionResult GetTime()
-    {
-        return Ok(new { DateTime.Now });
     }
 }

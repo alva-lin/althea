@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace Althea.Infrastructure.AspNetCore;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public abstract class BasicApiController : ControllerBase
 {
     protected BasicApiController(ILogger<BasicApiController> logger)

@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Althea.Infrastructure.Entit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Althea.Data", "Althea.Data\Althea.Data.csproj", "{FF7D5D71-5F4D-4ADA-BD8D-E29B7DB236A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Althea.Core", "Althea.Core\Althea.Core.csproj", "{090A609A-978D-4A8B-859F-34E3F98D3CEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{FF7D5D71-5F4D-4ADA-BD8D-E29B7DB236A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF7D5D71-5F4D-4ADA-BD8D-E29B7DB236A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF7D5D71-5F4D-4ADA-BD8D-E29B7DB236A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{090A609A-978D-4A8B-859F-34E3F98D3CEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{090A609A-978D-4A8B-859F-34E3F98D3CEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{090A609A-978D-4A8B-859F-34E3F98D3CEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{090A609A-978D-4A8B-859F-34E3F98D3CEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{395DDD48-9596-4DA0-A817-0B033D840699} = {EA6B913D-3FC3-49E8-B870-5CECC3DE4CD8}

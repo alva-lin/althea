@@ -15,7 +15,6 @@ public static class DbContextExtension
     public static ModelBuilder ConfigureBaseEntityTypes(this ModelBuilder modelBuilder, params Assembly[] assemblies)
     {
         var basicEntityType              = typeof(IBasicEntity<>);
-        var basicEntityConfigurationType = typeof(BasicEntityConfiguration<,>);
 
         assemblies = assemblies.Union(new[] { typeof(IBasicEntity).Assembly }).ToArray();
         var entityTypes = assemblies.SelectMany(assembly =>
@@ -32,7 +31,12 @@ public static class DbContextExtension
 
             Type entityConfigurationType;
 
-            if (entityType.IsAssignableTo(typeof(IAuditable)))
+            if (typeof(DeletableEntity<>).MakeGenericType(tKey).IsAssignableFrom(entityType))
+            {
+                entityConfigurationType
+                    = typeof(DeletableEntityConfiguration<,>).MakeGenericType(entityType, tKey);
+            }
+            else if (typeof(IAuditable).IsAssignableFrom(entityType))
             {
                 var tIAudit = entityType.GetInterface(typeof(IBasicEntity<,>).Name)!.GetGenericArguments()[1];
 
@@ -44,14 +48,22 @@ public static class DbContextExtension
                 entityConfigurationType = typeof(BasicEntityConfiguration<,>).MakeGenericType(entityType, tKey);
             }
 
+            Console.WriteLine("Configuring: " + entityType.Name);
             var entityConfiguration = Activator.CreateInstance(entityConfigurationType);
             modelBuilder.ApplyConfiguration((dynamic)entityConfiguration!);
         }
 
+        var basicEntityConfigurationTypes = new[]
+        {
+            typeof(BasicEntityConfiguration<,>),
+            typeof(BasicEntityWithAuditConfiguration<,,>),
+            typeof(DeletableEntityConfiguration<,>),
+        };
         var entityConfigurationTypes = assemblies.SelectMany(assembly =>
             assembly.GetTypes().Where(t =>
                 t is { IsClass: true, IsAbstract: false, IsGenericType: false, BaseType.IsGenericType: true } &&
-                t.BaseType.GetGenericTypeDefinition() == basicEntityConfigurationType));
+                basicEntityConfigurationTypes.Any(t2 => t2 == t.BaseType.GetGenericTypeDefinition()))
+            );
         foreach (var entityConfigurationType in entityConfigurationTypes)
         {
             var entityConfiguration = Activator.CreateInstance(entityConfigurationType);

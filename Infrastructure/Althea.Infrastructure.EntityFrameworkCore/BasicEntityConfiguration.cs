@@ -19,6 +19,8 @@ public class BasicEntityConfiguration<TEntity, TKey> : IEntityTypeConfiguration<
         builder.ToTable(typeof(TEntity).Name);
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).ValueGeneratedOnAdd();
+
+        Console.WriteLine("Configuring BasicEntityConfiguration: " + typeof(TEntity).Name);
     }
 }
 
@@ -39,5 +41,21 @@ public class BasicEntityWithAuditConfiguration<TEntity, TKey, TAudit> : BasicEnt
 
         // 使用 PostgreSQL 的 jsonb 类型
         builder.Property(e => e.Audit).HasColumnType("jsonb");
+
+        Console.WriteLine("Configuring BasicEntityWithAuditConfiguration: " + typeof(TEntity).Name);
+    }
+}
+
+public class DeletableEntityConfiguration<TEntity, TKey> : BasicEntityWithAuditConfiguration<TEntity, TKey, DeletableAudit>
+    where TEntity : DeletableEntity<TKey>
+    where TKey : IEquatable<TKey>
+{
+    public override void Configure(EntityTypeBuilder<TEntity> builder)
+    {
+        base.Configure(builder);
+
+        builder.HasQueryFilter(entity => !entity.Audit.IsDeleted);
+
+        Console.WriteLine("Configuring DeletableEntityConfiguration: " + typeof(TEntity).Name);
     }
 }

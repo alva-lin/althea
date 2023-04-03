@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Althea.Infrastructure.EntityFrameworkCore.Entities;
 
 /// <summary>
@@ -16,11 +18,13 @@ public class BasicAudit : IAudit
     /// <summary>
     ///     创建人
     /// </summary>
+    [JsonPropertyOrder(11)]
     public string CreatedBy { get; set; } = null!;
 
     /// <summary>
     ///     创建时间
     /// </summary>
+    [JsonPropertyOrder(10)]
     public DateTime CreationTime { get; set; }
 
     public static readonly BasicAudit Default = new()
@@ -38,11 +42,14 @@ public class EditableAudit : BasicAudit
     /// <summary>
     ///     修改人
     /// </summary>
+    [JsonPropertyOrder(21)]
     public string? ModifiedBy { get; set; }
 
     /// <summary>
     ///     修改时间
     /// </summary>
+
+    [JsonPropertyOrder(20)]
     public DateTime? ModifiedTime { get; set; }
 
     public new static readonly EditableAudit Default = new()
@@ -60,16 +67,21 @@ public class DeletableAudit : EditableAudit
     /// <summary>
     ///     是否删除
     /// </summary>
-    public bool IsDelete { get; set; }
+
+    [JsonPropertyOrder(1)]
+    public bool IsDeleted { get; set; }
 
     /// <summary>
     ///     删除人
     /// </summary>
+
+    [JsonPropertyOrder(32)]
     public string? DeletedBy { get; set; }
 
     /// <summary>
     ///     删除时间
     /// </summary>
+    [JsonPropertyOrder(31)]
     public DateTime? DeletedTime { get; set; }
 
     public new static readonly DeletableAudit Default = new()
