@@ -26,9 +26,9 @@ public class BasicExceptionMiddleware
         }
         catch (BasicException e)
         {
-            ResponseResult<object> result = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" ?
-                ResponseResult.Error<object>(e.ErrorInfos ?? null, e.Code, e.Message, e.StackTrace) :
-                ResponseResult.Error<object>(null, e.Code, e.Message);
+            var result = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+                ? ResponseResult.Error(e.ErrorInfos ?? null, e.Code, e.Message, e.StackTrace)
+                : ResponseResult.Error<object>(null, e.Code, e.Message);
 
             await context.Response.WriteAsJsonAsync(result, cancellationToken);
 
@@ -45,9 +45,9 @@ public class BasicExceptionMiddleware
         {
             var code = ResponseCode.Error;
 
-            ResponseResult<object> result = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" ?
-                ResponseResult.Error<object>(null, code, e.Message, e.StackTrace) :
-                ResponseResult.Error<object>(null, code, e.Message);
+            var result = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+                ? ResponseResult.Error<object>(null, code, e.Message, e.StackTrace)
+                : ResponseResult.Error<object>(null, code, e.Message);
 
             await context.Response.WriteAsJsonAsync(result, cancellationToken);
 

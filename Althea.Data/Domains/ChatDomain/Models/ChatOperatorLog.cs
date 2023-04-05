@@ -1,12 +1,12 @@
 ﻿namespace Althea.Data.Domains.ChatDomain;
 
 /// <summary>
-/// 聊天操作日志
+///     聊天操作日志
 /// </summary>
 public class ChatOperatorLog : BasicEntityWithAudit<long>
 {
     /// <summary>
-    /// 操作
+    ///     操作
     /// </summary>
     public ChatOperator Operator { get; set; }
 
@@ -15,14 +15,14 @@ public class ChatOperatorLog : BasicEntityWithAudit<long>
     public long ChatId { get; set; }
 
     /// <summary>
-    /// 操作的消息
+    ///     操作的消息
     /// </summary>
     public Message Message { get; set; } = null!;
 
     public long MessageId { get; set; }
 
     /// <summary>
-    /// 接收的消息（某些操作会收到消息）
+    ///     接收的消息（某些操作会收到消息）
     /// </summary>
     public Message? Received { get; set; }
 
@@ -34,7 +34,6 @@ public class ChatOperatorLog : BasicEntityWithAudit<long>
 
     public int TotalUsage => PromptUsage + CompletionUsage;
 }
-
 
 public class ChatOperatorLogEntityConfiguration : BasicEntityWithAuditConfiguration<ChatOperatorLog, long, BasicAudit>
 {

@@ -38,7 +38,7 @@ public abstract class BasicDbContext : DbContext
     }
 
     /// <summary>
-    /// 获取所有需要注册的实体配置程序集
+    ///     获取所有需要注册的实体配置程序集
     /// </summary>
     /// <returns></returns>
     protected abstract Assembly[] GetModelAssemblies();
@@ -100,7 +100,7 @@ public abstract class BasicDbContext : DbContext
             {
                 case EntityState.Deleted:
                     var deletableAudit = (DeletableAudit)auditable.Audit;
-                    deletableAudit.IsDeleted    = true;
+                    deletableAudit.IsDeleted   = true;
                     deletableAudit.DeletedTime = DateTime.UtcNow;
                     deletableAudit.DeletedBy   = AuditInfoProvider.CurrentUser;
 

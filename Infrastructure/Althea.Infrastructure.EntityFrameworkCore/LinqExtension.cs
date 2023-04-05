@@ -11,7 +11,7 @@ public static class LinqExtension
     }
 
     /// <summary>
-    /// Include if condition is true, otherwise return source.
+    ///     Include if condition is true, otherwise return source.
     /// </summary>
     /// <param name="source"></param>
     /// <param name="condition"></param>

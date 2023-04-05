@@ -4,7 +4,6 @@ namespace Althea.Infrastructure;
 
 public interface IService
 {
-
 }
 
 public abstract class BasicService : IService

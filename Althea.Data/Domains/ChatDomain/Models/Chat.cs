@@ -7,27 +7,27 @@ namespace Althea.Data.Domains.ChatDomain;
 public class Chat : DeletableEntity<long>
 {
     /// <summary>
-    /// 聊天名称
+    ///     聊天名称
     /// </summary>
     public string Name { get; set; } = null!;
 
     /// <summary>
-    /// 使用的模型
+    ///     使用的模型
     /// </summary>
     public string Model { get; set; } = null!;
 
     /// <summary>
-    /// 当前消息的 token 数
+    ///     当前消息的 token 数
     /// </summary>
     public int CurrentUsage { get; protected set; }
 
     /// <summary>
-    /// 累计使用的 token 总额
+    ///     累计使用的 token 总额
     /// </summary>
     public int TotalUsage { get; protected set; }
 
     /// <summary>
-    /// 最后一次发送消息的时间
+    ///     最后一次发送消息的时间
     /// </summary>
     public DateTime? LastSendTime { get; protected set; }
 
@@ -36,12 +36,12 @@ public class Chat : DeletableEntity<long>
     public ICollection<ChatOperatorLog> Logs { get; set; } = new List<ChatOperatorLog>();
 
     /// <summary>
-    /// 文本总长度
+    ///     文本总长度
     /// </summary>
     public int TotalLength => Messages.Sum(message => message.Content.Length);
 
     /// <summary>
-    /// 调用 API 时，发送的消息
+    ///     调用 API 时，发送的消息
     /// </summary>
     [NotMapped]
     public List<ChatMessage> ChatMessages => Messages.Select(GetChatMessage).ToList();
@@ -78,14 +78,14 @@ public class Chat : DeletableEntity<long>
         var usage = Messages.Sum(message => message.Usage + 5);
 
         // 添加操作日志
-        ChatOperatorLog log = new ChatOperatorLog()
+        var log = new ChatOperatorLog
         {
             Operator        = ChatOperator.Send,
             Chat            = this,
             Message         = sent,
             Received        = received,
             PromptUsage     = usage - received.Usage,
-            CompletionUsage = received.Usage,
+            CompletionUsage = received.Usage
         };
         dbContext.Add(log);
         Logs.Add(log);

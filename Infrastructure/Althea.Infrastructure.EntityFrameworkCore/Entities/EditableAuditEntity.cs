@@ -6,7 +6,7 @@ public abstract class EditableAuditEntity<TKey> : BasicEntity<TKey>,
     where TKey : IEquatable<TKey>
 {
     /// <summary>
-    /// 审计信息
+    ///     审计信息
     /// </summary>
     public EditableAudit Audit { get; set; } = EditableAudit.Default;
 }

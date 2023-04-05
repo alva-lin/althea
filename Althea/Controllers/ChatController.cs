@@ -1,5 +1,4 @@
 ﻿using Althea.Data.Domains.ChatDomain;
-using Althea.Infrastructure;
 using Althea.Infrastructure.AspNetCore;
 using Althea.Models;
 
@@ -8,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace Althea.Controllers;
 
 /// <summary>
-/// 聊天记录控制器
+///     聊天记录控制器
 /// </summary>
 public class ChatController : BasicApiController
 {
+    private readonly IChatService _chatService;
+
     public ChatController(ILogger<ChatController> logger, IChatService chatService)
         : base(logger)
     {
@@ -19,10 +20,8 @@ public class ChatController : BasicApiController
 
     }
 
-    private readonly IChatService _chatService;
-
     /// <summary>
-    /// 获取聊天列表
+    ///     获取聊天列表
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
@@ -33,7 +32,7 @@ public class ChatController : BasicApiController
     }
 
     /// <summary>
-    /// 新建聊天
+    ///     新建聊天
     /// </summary>
     /// <returns></returns>
     [HttpPost("create")]
@@ -43,7 +42,7 @@ public class ChatController : BasicApiController
     }
 
     /// <summary>
-    /// 重命名聊天
+    ///     重命名聊天
     /// </summary>
     /// <param name="id"></param>
     /// <param name="name"></param>
@@ -55,7 +54,7 @@ public class ChatController : BasicApiController
     }
 
     /// <summary>
-    /// 删除聊天
+    ///     删除聊天
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -66,7 +65,7 @@ public class ChatController : BasicApiController
     }
 
     /// <summary>
-    /// 恢复聊天
+    ///     恢复聊天
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -77,7 +76,7 @@ public class ChatController : BasicApiController
     }
 
     /// <summary>
-    /// 获取聊天记录
+    ///     获取聊天记录
     /// </summary>
     /// <param name="chatId"></param>
     /// <param name="cancellationToken"></param>
@@ -90,7 +89,7 @@ public class ChatController : BasicApiController
     }
 
     /// <summary>
-    /// 添加聊天机器人的设定
+    ///     添加聊天机器人的设定
     /// </summary>
     /// <param name="chatId"></param>
     /// <param name="requestDtoDto"></param>

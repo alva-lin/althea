@@ -6,7 +6,8 @@ namespace Althea.Data;
 
 public class AltheaDbContext : BasicDbContext
 {
-    public AltheaDbContext(DbContextOptions options, IAuditInfoProvider auditInfoProvider, ILogger<AltheaDbContext> logger)
+    public AltheaDbContext(DbContextOptions options, IAuditInfoProvider auditInfoProvider,
+        ILogger<AltheaDbContext> logger)
         : base(options, auditInfoProvider, logger)
     {
     }

@@ -10,15 +10,11 @@ using SharpToken;
 namespace Althea.Core.Services;
 
 /// <summary>
-/// Token 计算服务
+///     Token 计算服务
 /// </summary>
 [LifeScope(LifeScope.Singleton)]
 public class TikTokenService : IService
 {
-    private readonly IDictionary<string, GptEncoding> _encodings;
-
-    private readonly IDictionary<string, Models.Model> _modelDict;
-
     private const string CL100K_BASE = "cl100k_base";
 
     private const string P50K_BASE = "p50k_base";
@@ -26,6 +22,10 @@ public class TikTokenService : IService
     private const string P50K_EDIT = "p50k_edit";
 
     private const string R50K_BASE = "r50k_base";
+
+    private readonly IDictionary<string, GptEncoding> _encodings;
+
+    private readonly IDictionary<string, Models.Model> _modelDict;
 
     public TikTokenService()
     {
@@ -45,7 +45,7 @@ public class TikTokenService : IService
     {
         if (!_encodings.TryGetValue(name, out var encoding))
         {
-            encoding = GptEncoding.GetEncoding(name);
+            encoding         = GptEncoding.GetEncoding(name);
             _encodings[name] = encoding;
         }
         return encoding;
@@ -109,7 +109,7 @@ public class TikTokenService : IService
     }
 
     /// <summary>
-    /// 计算 Token 长度
+    ///     计算 Token 长度
     /// </summary>
     /// <param name="text">文本</param>
     /// <param name="model">模型</param>

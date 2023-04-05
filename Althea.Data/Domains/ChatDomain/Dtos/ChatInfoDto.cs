@@ -5,17 +5,17 @@ public class ChatInfoDto
     public long Id { get; set; }
 
     /// <summary>
-    /// 聊天名称
+    ///     聊天名称
     /// </summary>
     public string Name { get; set; } = null!;
 
     /// <summary>
-    /// 模型
+    ///     模型
     /// </summary>
     public string Model { get; set; } = null!;
 
     /// <summary>
-    /// 最后一次发送消息的时间
+    ///     最后一次发送消息的时间
     /// </summary>
     public DateTime? LastSendTime { get; set; }
 }

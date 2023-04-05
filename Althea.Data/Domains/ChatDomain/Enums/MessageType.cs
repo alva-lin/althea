@@ -4,5 +4,5 @@ public enum MessageType
 {
     System,
     User,
-    Assistant,
+    Assistant
 }

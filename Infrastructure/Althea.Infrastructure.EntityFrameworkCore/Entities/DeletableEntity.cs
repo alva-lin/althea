@@ -5,7 +5,7 @@ public abstract class DeletableEntity<TKey> : BasicEntity<TKey>, IBasicEntity<TK
     where TKey : IEquatable<TKey>
 {
     /// <summary>
-    /// 审计信息
+    ///     审计信息
     /// </summary>
     public DeletableAudit Audit { get; set; } = DeletableAudit.Default;
 }

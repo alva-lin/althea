@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Althea.Infrastructure.EntityFrameworkCore;
 
 /// <summary>
-/// 基础实体配置
+///     基础实体配置
 /// </summary>
-/// <remarks>这是没有审计信息的实体配置，如果实体带有审计信息，请继承 <see cref="BasicEntityWithAuditConfiguration{TEntity,TKey,TAudit}"/></remarks>
+/// <remarks>这是没有审计信息的实体配置，如果实体带有审计信息，请继承 <see cref="BasicEntityWithAuditConfiguration{TEntity,TKey,TAudit}" /></remarks>
 /// <typeparam name="TEntity">实体类型</typeparam>
 /// <typeparam name="TKey">主键类型</typeparam>
 public class BasicEntityConfiguration<TEntity, TKey> : IEntityTypeConfiguration<TEntity>
@@ -25,7 +25,7 @@ public class BasicEntityConfiguration<TEntity, TKey> : IEntityTypeConfiguration<
 }
 
 /// <summary>
-/// 带有审计信息的实体配置
+///     带有审计信息的实体配置
 /// </summary>
 /// <typeparam name="TEntity">实体类型</typeparam>
 /// <typeparam name="TKey">主键类型</typeparam>
@@ -46,7 +46,8 @@ public class BasicEntityWithAuditConfiguration<TEntity, TKey, TAudit> : BasicEnt
     }
 }
 
-public class DeletableEntityConfiguration<TEntity, TKey> : BasicEntityWithAuditConfiguration<TEntity, TKey, DeletableAudit>
+public class
+    DeletableEntityConfiguration<TEntity, TKey> : BasicEntityWithAuditConfiguration<TEntity, TKey, DeletableAudit>
     where TEntity : DeletableEntity<TKey>
     where TKey : IEquatable<TKey>
 {

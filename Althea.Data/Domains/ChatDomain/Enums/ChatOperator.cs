@@ -2,5 +2,5 @@
 
 public enum ChatOperator
 {
-    Send,
+    Send
 }

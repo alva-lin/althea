@@ -7,10 +7,10 @@ namespace Althea.Infrastructure.AspNetCore;
 [Route("api/[controller]")]
 public abstract class BasicApiController : ControllerBase
 {
+    protected readonly ILogger<BasicApiController> _logger;
+
     protected BasicApiController(ILogger<BasicApiController> logger)
     {
         _logger = logger;
     }
-
-    protected readonly ILogger<BasicApiController> _logger;
 }

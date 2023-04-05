@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Althea.Controllers;
 
 /// <summary>
-/// 健康检测控制器
+///     健康检测控制器
 /// </summary>
 public class HealthController : BasicApiController
 {
@@ -16,7 +16,7 @@ public class HealthController : BasicApiController
     }
 
     /// <summary>
-    /// 心跳检测
+    ///     心跳检测
     /// </summary>
     /// <returns></returns>
     [HttpGet("[action]")]

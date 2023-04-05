@@ -25,7 +25,7 @@ public interface IBasicEntity
 public interface IBasicEntity<TKey> : IBasicEntity where TKey : IEquatable<TKey>
 {
     /// <summary>
-    /// Id
+    ///     Id
     /// </summary>
     public TKey Id { get; set; }
 }

@@ -14,7 +14,7 @@ public static class DbContextExtension
     /// <param name="assemblies"></param>
     public static ModelBuilder ConfigureBaseEntityTypes(this ModelBuilder modelBuilder, params Assembly[] assemblies)
     {
-        var basicEntityType              = typeof(IBasicEntity<>);
+        var basicEntityType = typeof(IBasicEntity<>);
 
         assemblies = assemblies.Union(new[] { typeof(IBasicEntity).Assembly }).ToArray();
         var entityTypes = assemblies.SelectMany(assembly =>
@@ -57,12 +57,12 @@ public static class DbContextExtension
         {
             typeof(BasicEntityConfiguration<,>),
             typeof(BasicEntityWithAuditConfiguration<,,>),
-            typeof(DeletableEntityConfiguration<,>),
+            typeof(DeletableEntityConfiguration<,>)
         };
         var entityConfigurationTypes = assemblies.SelectMany(assembly =>
-            assembly.GetTypes().Where(t =>
-                t is { IsClass: true, IsAbstract: false, IsGenericType: false, BaseType.IsGenericType: true } &&
-                basicEntityConfigurationTypes.Any(t2 => t2 == t.BaseType.GetGenericTypeDefinition()))
+                assembly.GetTypes().Where(t =>
+                    t is { IsClass: true, IsAbstract: false, IsGenericType: false, BaseType.IsGenericType: true } &&
+                    basicEntityConfigurationTypes.Any(t2 => t2 == t.BaseType.GetGenericTypeDefinition()))
             );
         foreach (var entityConfigurationType in entityConfigurationTypes)
         {

@@ -2,8 +2,4 @@
 
 public class AltheaProfile : Profile
 {
-    public AltheaProfile()
-    {
-
-    }
 }

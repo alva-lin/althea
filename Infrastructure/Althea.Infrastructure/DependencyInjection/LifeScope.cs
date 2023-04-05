@@ -1,7 +1,7 @@
 ﻿namespace Althea.Infrastructure.DependencyInjection;
 
 /// <summary>
-/// 服务生命周期
+///     服务生命周期
 /// </summary>
 public enum LifeScope
 {
@@ -9,5 +9,5 @@ public enum LifeScope
 
     Scope,
 
-    Transient,
+    Transient
 }

@@ -5,7 +5,7 @@ public abstract class BasicEntity<TKey> : IBasicEntity<TKey>
     where TKey : IEquatable<TKey>
 {
     /// <summary>
-    /// Id
+    ///     Id
     /// </summary>
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -16,7 +16,7 @@ public abstract class BasicEntityWithAudit<TKey> : BasicEntity<TKey>, IBasicEnti
     where TKey : IEquatable<TKey>
 {
     /// <summary>
-    /// 审计信息
+    ///     审计信息
     /// </summary>
     public BasicAudit Audit { get; set; } = BasicAudit.Default;
 }

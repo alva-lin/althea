@@ -31,7 +31,8 @@ public class ResponseListResult<TEntity> : ResponseResult<TEntity[]>
 
 public static class ResponseListResult
 {
-    public static ResponseListResult<TEntity> Success<TEntity>(TEntity[] data, int? totalCount = null, string? message = null)
+    public static ResponseListResult<TEntity> Success<TEntity>(TEntity[] data, int? totalCount = null,
+        string? message = null)
     {
         return new()
         {

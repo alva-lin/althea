@@ -6,7 +6,7 @@ namespace Althea.Infrastructure.Extensions;
 public static class EnumExtension
 {
     /// <summary>
-    /// 获取枚举的描述文本，从 <see cref="DescriptionAttribute"/> 获取，如果没有，则直接返回枚举项的名称
+    ///     获取枚举的描述文本，从 <see cref="DescriptionAttribute" /> 获取，如果没有，则直接返回枚举项的名称
     /// </summary>
     /// <param name="enum"></param>
     /// <returns></returns>
@@ -23,14 +23,7 @@ public static class EnumExtension
     }
 
     /// <summary>
-    /// 枚举的字典项
-    /// </summary>
-    /// <param name="Description">描述文本，从枚举项的 <see cref="DescriptionAttribute"/> 获取，如果没有，则直接返回枚举项的名称</param>
-    /// <param name="Value">值</param>
-    public sealed record EnumKeyPair(string Description, int Value);
-
-    /// <summary>
-    /// 获取枚举的字典列表
+    ///     获取枚举的字典列表
     /// </summary>
     /// <typeparam name="T">枚举类型</typeparam>
     /// <returns>枚举字典项数组</returns>
@@ -44,4 +37,11 @@ public static class EnumExtension
             return new EnumKeyPair(attr?.Description ?? field.Name, (int)field.GetValue(null)!);
         }).ToArray();
     }
+
+    /// <summary>
+    ///     枚举的字典项
+    /// </summary>
+    /// <param name="Description">描述文本，从枚举项的 <see cref="DescriptionAttribute" /> 获取，如果没有，则直接返回枚举项的名称</param>
+    /// <param name="Value">值</param>
+    public sealed record EnumKeyPair(string Description, int Value);
 }

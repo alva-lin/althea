@@ -19,7 +19,7 @@ public static partial class ResponseCode
         foreach (var field in fields)
         {
             var description = field.Name.ToCamelCase();
-            var attr = field.GetCustomAttributes<DescriptionAttribute>().FirstOrDefault();
+            var attr        = field.GetCustomAttributes<DescriptionAttribute>().FirstOrDefault();
             if (attr != null)
             {
                 description = attr.Description;

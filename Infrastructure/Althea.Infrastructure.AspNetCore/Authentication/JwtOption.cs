@@ -25,4 +25,3 @@ public class JwtOption
     /// </summary>
     public uint AccessExpiration { get; set; }
 }
-
