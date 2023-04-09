@@ -1,13 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
-
 using Althea.Core.Services;
 using Althea.Infrastructure;
 using Althea.Infrastructure.DependencyInjection;
 using Althea.Infrastructure.Extensions;
-
 using Microsoft.Extensions.Logging;
-
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.ObjectModels;
 
@@ -84,7 +81,7 @@ public class ChatService : BasicService, IChatService
 {
     private readonly AltheaDbContext _context;
 
-    private readonly IMapper        _mapper;
+    private readonly IMapper _mapper;
     private readonly IOpenAIService _openAIService;
 
     private readonly TikTokenService _tikTokenService;
@@ -93,10 +90,10 @@ public class ChatService : BasicService, IChatService
         TikTokenService tikTokenService, IMapper mapper)
         : base(logger)
     {
-        _openAIService   = openAIService;
-        _context         = context;
+        _openAIService = openAIService;
+        _context = context;
         _tikTokenService = tikTokenService;
-        _mapper          = mapper;
+        _mapper = mapper;
     }
 
     public async Task<ChatInfoDto[]> GetChatsAsync(bool includeMessage = false, bool includeLog = false,
@@ -105,6 +102,7 @@ public class ChatService : BasicService, IChatService
         var chats = await _context.Set<Chat>().AsNoTracking().AsQueryable()
             .IncludeIf(includeMessage, chat => chat.Messages)
             .IncludeIf(includeLog, chat => chat.Logs)
+            .OrderByDescending(chat => chat.Id)
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
 
@@ -115,7 +113,7 @@ public class ChatService : BasicService, IChatService
     {
         var chat = new Chat
         {
-            Name  = "Default Chat",
+            Name = "Default Chat",
             Model = Models.ChatGpt3_5Turbo
         };
         await _context.Set<Chat>().AddAsync(chat);
@@ -166,7 +164,7 @@ public class ChatService : BasicService, IChatService
     public async IAsyncEnumerable<string> SendMessageAsync(long id, string message,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var sb   = new StringBuilder();
+        var sb = new StringBuilder();
         var chat = await FindChatAsync(id, cancellationToken, true, true);
 
         message = message.Trim();
@@ -209,7 +207,7 @@ public class ChatService : BasicService, IChatService
         bool ignoreGlobalQuery = false)
     {
         return await GetChatAsync(id, cancellationToken, includeMessage, includeLog, ignoreGlobalQuery)
-         ?? throw new("Chat not found");
+               ?? throw new("Chat not found");
     }
 
     private Task<Chat?> GetChatAsync(long id,
@@ -224,6 +222,7 @@ public class ChatService : BasicService, IChatService
         {
             query = query.IgnoreQueryFilters();
         }
+
         return query.FirstOrDefaultAsync(chat => chat.Id == id, cancellationToken);
     }
 }

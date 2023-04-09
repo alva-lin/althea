@@ -1,7 +1,6 @@
 ﻿using Althea.Data.Domains.ChatDomain;
 using Althea.Infrastructure.AspNetCore;
 using Althea.Models;
-
 using Microsoft.AspNetCore.Mvc;
 
 namespace Althea.Controllers;
@@ -17,7 +16,6 @@ public class ChatController : BasicApiController
         : base(logger)
     {
         _chatService = chatService;
-
     }
 
     /// <summary>
@@ -47,7 +45,7 @@ public class ChatController : BasicApiController
     /// <param name="id"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    [HttpPost("{id}/rename")]
+    [HttpPost("{id:long}/rename")]
     public async Task<ResponseResult<bool>> RenameChatAsync(long id, string name)
     {
         return await _chatService.RenameChatAsync(id, name);
