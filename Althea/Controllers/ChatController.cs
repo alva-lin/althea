@@ -34,7 +34,7 @@ public class ChatController : BasicApiController
     /// </summary>
     /// <returns></returns>
     [HttpPost("create")]
-    public async Task<ResponseResult<long>> CreateChatAsync()
+    public async Task<ResponseResult<ChatInfoDto>> CreateChatAsync()
     {
         return await _chatService.CreateChatAsync();
     }

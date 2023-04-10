@@ -1,5 +1,4 @@
 ﻿using Althea.Core.Services;
-
 using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace Althea.Data.Domains.ChatDomain;
@@ -41,6 +40,11 @@ public class Chat : DeletableEntity<long>
     public int TotalLength => Messages.Sum(message => message.Content.Length);
 
     /// <summary>
+    ///     消息总数
+    /// </summary>
+    public int TotalCount { get; set; }
+
+    /// <summary>
     ///     调用 API 时，发送的消息
     /// </summary>
     [NotMapped]
@@ -53,11 +57,11 @@ public class Chat : DeletableEntity<long>
 
         var message = new Message
         {
-            Chat    = this,
-            Order   = Messages.Count + 1,
-            Type    = type,
+            Chat = this,
+            Order = ++TotalCount,
+            Type = type,
             Content = content,
-            Usage   = tikTokenService.CalculateTokenLength(content, Model)
+            Usage = tikTokenService.CalculateTokenLength(content, Model)
         };
 
         Messages.Add(message);
@@ -80,19 +84,19 @@ public class Chat : DeletableEntity<long>
         // 添加操作日志
         var log = new ChatOperatorLog
         {
-            Operator        = ChatOperator.Send,
-            Chat            = this,
-            Message         = sent,
-            Received        = received,
-            PromptUsage     = usage - received.Usage,
+            Operator = ChatOperator.Send,
+            Chat = this,
+            Message = sent,
+            Received = received,
+            PromptUsage = usage - received.Usage,
             CompletionUsage = received.Usage
         };
         dbContext.Add(log);
         Logs.Add(log);
 
         // 更新当前 token 数
-        CurrentUsage =  usage;
-        TotalUsage   += usage;
+        CurrentUsage = usage;
+        TotalUsage += usage;
 
         dbContext.Update(this);
 
@@ -103,10 +107,10 @@ public class Chat : DeletableEntity<long>
     {
         Func<string, ChatMessage> factory = message.Type switch
         {
-            MessageType.User      => ChatMessage.FromUser,
+            MessageType.User => ChatMessage.FromUser,
             MessageType.Assistant => ChatMessage.FromAssistant,
-            MessageType.System    => ChatMessage.FromSystem,
-            _                     => throw new ArgumentOutOfRangeException()
+            MessageType.System => ChatMessage.FromSystem,
+            _ => throw new ArgumentOutOfRangeException()
         };
         return factory(message.Content);
     }

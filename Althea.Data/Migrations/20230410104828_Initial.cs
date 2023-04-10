@@ -24,6 +24,7 @@ namespace Althea.Data.Migrations
                     CurrentUsage = table.Column<int>(type: "integer", nullable: false),
                     TotalUsage = table.Column<int>(type: "integer", nullable: false),
                     LastSendTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    TotalCount = table.Column<int>(type: "integer", nullable: false),
                     Audit = table.Column<DeletableAudit>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>

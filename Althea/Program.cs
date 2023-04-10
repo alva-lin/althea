@@ -2,12 +2,10 @@ using Althea;
 using Althea.Controllers;
 using Althea.Data;
 using Althea.Infrastructure.EntityFrameworkCore;
-
+using Althea.Infrastructure.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-
 using OpenAI.GPT3.Extensions;
-
 using Serilog;
 
 Environment.CurrentDirectory = AppContext.BaseDirectory;
@@ -27,7 +25,7 @@ try
 {
     Log.Information("Application starting up...");
 
-    var builder       = WebApplication.CreateBuilder(args);
+    var builder = WebApplication.CreateBuilder(args);
     var configuration = builder.Configuration;
 
     builder.Host.UseSerilog(
@@ -35,17 +33,17 @@ try
             .ReadFrom.Configuration(context.Configuration)
             .ReadFrom.Services(services)
             .Enrich.FromLogContext()
-        );
+    );
 
     // Add services to the container.
-    builder.Services.AddControllers(options =>
+    builder.Services.AddControllers(options => { options.Filters.Add<ModelValidFilter>(); }).AddJsonOptions(options =>
     {
-        options.Filters.Add<ModelValidFilter>();
-    }).AddJsonOptions(options =>
-    {
-        options.ConfigureDefaultOptions();
+        JsonExtension.SetDefaultJsonSerializerOptions(options.JsonSerializerOptions);
     });
-    builder.Services.AddSignalR();
+    builder.Services.AddSignalR().AddJsonProtocol(options =>
+    {
+        JsonExtension.SetDefaultJsonSerializerOptions(options.PayloadSerializerOptions);
+    });
     builder.Services.Configure<HubOptions>(options =>
     {
         // configure hub options
@@ -53,10 +51,7 @@ try
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(options =>
-    {
-        options.IncludeAllXmlComments();
-    });
+    builder.Services.AddSwaggerGen(options => { options.IncludeAllXmlComments(); });
 
     builder.Services.AddTransient(typeof(Lazy<>));
     builder.Services.AddHttpContextAccessor();
@@ -73,10 +68,7 @@ try
 
     builder.Services.Configure<SystemOption>(configuration.GetSection(nameof(SystemOption)));
 
-    builder.Services.AddOpenAIService(options =>
-    {
-        options.ApiKey = configuration["OpenAI:ApiKey"]!;
-    });
+    builder.Services.AddOpenAIService(options => { options.ApiKey = configuration["OpenAI:ApiKey"]!; });
 
     var app = builder.Build();
 

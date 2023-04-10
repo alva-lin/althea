@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Althea.Infrastructure.AspNetCore.JsonConverters;
+namespace Althea.Infrastructure.JsonConverters;
 
 public class TimeOnlyJsonConverter : JsonConverter<TimeOnly>
 {

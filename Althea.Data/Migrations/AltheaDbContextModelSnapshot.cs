@@ -49,6 +49,9 @@ namespace Althea.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("TotalCount")
+                        .HasColumnType("integer");
+
                     b.Property<int>("TotalUsage")
                         .HasColumnType("integer");
 

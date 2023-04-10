@@ -1,13 +1,10 @@
 ﻿using System.Reflection;
-
 using Althea.Infrastructure.AspNetCore.Authentication;
 using Althea.Infrastructure.AspNetCore.Cors;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Althea.Infrastructure.AspNetCore.Extensions;
@@ -44,11 +41,15 @@ public static class ServicesExtension
         services.AddCors(options =>
         {
             var serviceProvider = services.BuildServiceProvider();
-            var corsOption      = serviceProvider!.GetRequiredService<IOptions<CorsOption>>().Value;
+            var corsOption = serviceProvider!.GetRequiredService<IOptions<CorsOption>>().Value;
 
             options.AddDefaultPolicy(builder =>
             {
-                builder.WithOrigins(corsOption.AllowOrigins).WithHeaders(corsOption.AllowHeaders);
+                builder
+                    .WithOrigins(corsOption.AllowOrigins)
+                    .WithHeaders(corsOption.AllowHeaders)
+                    .AllowCredentials()
+                    ;
             });
         });
 

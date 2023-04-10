@@ -25,7 +25,7 @@ public interface IChatService
     ///     新建聊天
     /// </summary>
     /// <returns></returns>
-    Task<long> CreateChatAsync();
+    Task<ChatInfoDto> CreateChatAsync();
 
     /// <summary>
     ///     重命名聊天
@@ -73,7 +73,8 @@ public interface IChatService
     /// <param name="message"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    IAsyncEnumerable<string> SendMessageAsync(long id, string message, CancellationToken cancellationToken);
+    IAsyncEnumerable<ChatResponse> SendMessageAsync(long id, string message,
+        CancellationToken cancellationToken);
 }
 
 [LifeScope(LifeScope.Scope, typeof(IChatService))]
@@ -109,7 +110,7 @@ public class ChatService : BasicService, IChatService
         return _mapper.Map<ChatInfoDto[]>(chats);
     }
 
-    public async Task<long> CreateChatAsync()
+    public async Task<ChatInfoDto> CreateChatAsync()
     {
         var chat = new Chat
         {
@@ -118,7 +119,7 @@ public class ChatService : BasicService, IChatService
         };
         await _context.Set<Chat>().AddAsync(chat);
         await _context.SaveChangesAsync();
-        return chat.Id;
+        return _mapper.Map<ChatInfoDto>(chat);
     }
 
     public async Task<bool> RenameChatAsync(long id, string name)
@@ -155,21 +156,22 @@ public class ChatService : BasicService, IChatService
 
     public async Task<bool> AddSystemMessageAsync(long id, string message, CancellationToken cancellationToken)
     {
-        var chat = await FindChatAsync(id, cancellationToken);
+        var chat = await FindChatAsync(id, cancellationToken, true);
         chat.AddMessage(_context, _tikTokenService, message, MessageType.System);
         await _context.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    public async IAsyncEnumerable<string> SendMessageAsync(long id, string message,
+    public async IAsyncEnumerable<ChatResponse> SendMessageAsync(long id, string message,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var sb = new StringBuilder();
-        var chat = await FindChatAsync(id, cancellationToken, true, true);
+        var chat = await FindChatAsync(id, cancellationToken, true);
 
         message = message.Trim();
         var sent = chat.AddMessage(_context, _tikTokenService, message, MessageType.User);
-        Logger.Log(LogLevel.Debug, "Chat Message Sent: {Sent}", sent.ToJson());
+        var sentDto = _mapper.Map<MessageDto>(sent);
+        Logger.Log(LogLevel.Debug, "Chat Message Sent: {Sent}", sent.ToJson(0));
 
         var result = _openAIService.ChatCompletion.CreateCompletionAsStream(new()
         {
@@ -182,10 +184,22 @@ public class ChatService : BasicService, IChatService
             {
                 var response = item.Choices.First();
 
-                var content = response.Message.Content;
+                // OpenAI 的第一个返回值里，Content 为 null 值，所以做相关处理
+                // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+                var content = response.Message.Content ?? string.Empty;
                 sb.Append(content);
 
-                yield return content;
+                var tempReceived = new MessageDto
+                {
+                    ChatId = id,
+                    Order = sent.Order + 1,
+                    Content = content,
+                    Type = MessageType.Assistant,
+                    Usage = _tikTokenService.CalculateTokenLength(sb.ToString()),
+                    SendTime = DateTime.UtcNow
+                };
+
+                yield return new(sentDto, tempReceived, false);
             }
             else
             {
@@ -197,9 +211,14 @@ public class ChatService : BasicService, IChatService
 
         var receivedMessage = sb.ToString().Trim();
         chat.AddSendLog(_context, _tikTokenService, sent, receivedMessage, out var received);
-        Logger.Log(LogLevel.Debug, "Chat Message Received: {Received}", received.ToJson());
+        Logger.Log(LogLevel.Debug, "Chat Message Received: {Received}", received.ToJson(0));
 
         await _context.SaveChangesAsync(CancellationToken.None);
+
+        sentDto = _mapper.Map<MessageDto>(sent);
+        var receivedDto = _mapper.Map<MessageDto>(received);
+
+        yield return new(_mapper.Map<MessageDto>(sent), _mapper.Map<MessageDto>(received), true);
     }
 
     private async Task<Chat> FindChatAsync(long id,
