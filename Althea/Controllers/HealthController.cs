@@ -1,5 +1,4 @@
-﻿using Althea.Infrastructure.AspNetCore;
-
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Althea.Controllers;
@@ -12,13 +11,13 @@ public class HealthController : BasicApiController
     public HealthController(ILogger<HealthController> logger)
         : base(logger)
     {
-
     }
 
     /// <summary>
     ///     心跳检测
     /// </summary>
     /// <returns></returns>
+    [Authorize]
     [HttpGet("[action]")]
     public IActionResult HeartBeat()
     {

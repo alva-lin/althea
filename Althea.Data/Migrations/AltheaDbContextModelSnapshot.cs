@@ -49,6 +49,11 @@ namespace Althea.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Own")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
                     b.Property<int>("TotalCount")
                         .HasColumnType("integer");
 

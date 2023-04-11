@@ -1,5 +1,4 @@
 ﻿using Althea.Data.Domains.ChatDomain;
-using Althea.Infrastructure.AspNetCore;
 using Althea.Models;
 using Microsoft.AspNetCore.Mvc;
 

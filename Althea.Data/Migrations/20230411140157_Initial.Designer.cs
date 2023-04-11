@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Althea.Data.Migrations
 {
     [DbContext(typeof(AltheaDbContext))]
-    [Migration("20230410104828_Initial")]
+    [Migration("20230411140157_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -51,6 +51,11 @@ namespace Althea.Data.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Own")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
 
                     b.Property<int>("TotalCount")
                         .HasColumnType("integer");

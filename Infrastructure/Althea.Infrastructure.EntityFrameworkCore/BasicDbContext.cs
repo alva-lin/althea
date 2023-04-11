@@ -1,7 +1,5 @@
 ﻿using System.Reflection;
-
 using Althea.Infrastructure.EntityFrameworkCore.Entities;
-
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 
@@ -11,30 +9,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Althea.Infrastructure.EntityFrameworkCore;
 
-public interface IAuditInfoProvider
-{
-    string CurrentUser { get; }
-}
-
-public class UnknownAuditInfoProvider : IAuditInfoProvider
-{
-    public string CurrentUser => "Unknown";
-}
-
 public abstract class BasicDbContext : DbContext
 {
-    protected readonly IAuditInfoProvider AuditInfoProvider;
+    protected readonly IAuthInfoProvider AuthInfoProvider;
 
     protected readonly ILogger<BasicDbContext> Logger;
 
-    protected BasicDbContext(DbContextOptions options, IAuditInfoProvider auditInfoProvider,
+    protected BasicDbContext(DbContextOptions options, IAuthInfoProvider authInfoProvider,
         ILogger<BasicDbContext> logger)
         : base(options)
     {
-        AuditInfoProvider          =  auditInfoProvider;
-        Logger                     =  logger;
+        AuthInfoProvider = authInfoProvider;
+        Logger = logger;
         ChangeTracker.StateChanged += StateChangedAndTrackedEvent;
-        ChangeTracker.Tracked      += StateChangedAndTrackedEvent;
+        ChangeTracker.Tracked += StateChangedAndTrackedEvent;
     }
 
     /// <summary>
@@ -85,6 +73,7 @@ public abstract class BasicDbContext : DbContext
                     propertyEntry.IsModified = false;
                 }
             }
+
             if (e.Entry.Properties.Count(pEntry => pEntry.IsModified) == 0)
             {
                 e.Entry.State = EntityState.Unchanged;
@@ -100,23 +89,23 @@ public abstract class BasicDbContext : DbContext
             {
                 case EntityState.Deleted:
                     var deletableAudit = (DeletableAudit)auditable.Audit;
-                    deletableAudit.IsDeleted   = true;
+                    deletableAudit.IsDeleted = true;
                     deletableAudit.DeletedTime = DateTime.UtcNow;
-                    deletableAudit.DeletedBy   = AuditInfoProvider.CurrentUser;
+                    deletableAudit.DeletedBy = AuthInfoProvider.CurrentUser;
 
                     e.Entry.State = EntityState.Modified;
                     break;
                 case EntityState.Modified:
                     var editableAudit = (EditableAudit)auditable.Audit;
                     editableAudit.ModifiedTime = DateTime.UtcNow;
-                    editableAudit.ModifiedBy   = AuditInfoProvider.CurrentUser;
+                    editableAudit.ModifiedBy = AuthInfoProvider.CurrentUser;
 
                     e.Entry.Property(nameof(IAuditable.Audit)).IsModified = true;
                     break;
                 case EntityState.Added:
                     var basicAudit = (BasicAudit)auditable.Audit;
                     basicAudit.CreationTime = DateTime.UtcNow;
-                    basicAudit.CreatedBy    = AuditInfoProvider.CurrentUser;
+                    basicAudit.CreatedBy = AuthInfoProvider.CurrentUser;
                     break;
             }
         }

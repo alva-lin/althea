@@ -1,14 +1,12 @@
 ﻿using System.Reflection;
 
-using Microsoft.Extensions.Logging;
-
 namespace Althea.Data;
 
 public class AltheaDbContext : BasicDbContext
 {
-    public AltheaDbContext(DbContextOptions options, IAuditInfoProvider auditInfoProvider,
+    public AltheaDbContext(DbContextOptions options, IAuthInfoProvider authInfoProvider,
         ILogger<AltheaDbContext> logger)
-        : base(options, auditInfoProvider, logger)
+        : base(options, authInfoProvider, logger)
     {
     }
 

@@ -1,8 +1,6 @@
-﻿using System.Text;
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Althea.Infrastructure.AspNetCore.Authentication;
 
@@ -10,9 +8,12 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
 {
     private readonly JwtOption _jwtOption;
 
-    public ConfigureJwtBearerOptions(IOptions<JwtOption> jwtOption)
+    private readonly bool _isDevelopment;
+
+    public ConfigureJwtBearerOptions(IOptions<JwtOption> jwtOption, IHostEnvironment environment)
     {
         _jwtOption = jwtOption.Value;
+        _isDevelopment = environment.IsDevelopment();
     }
 
     public void Configure(string? name, JwtBearerOptions options)
@@ -22,18 +23,20 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
 
     public void Configure(JwtBearerOptions options)
     {
-        options.TokenValidationParameters = new()
-        {
-            ValidateIssuer           = true,
-            ValidateAudience         = true,
-            ValidateLifetime         = true,
-            ValidateIssuerSigningKey = true,
-
-            ClockSkew = TimeSpan.FromSeconds(30),
-
-            ValidIssuer      = _jwtOption.Issuer,
-            ValidAudience    = _jwtOption.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOption.Secret))
-        };
+        options.Audience = _jwtOption.Audience;
+        options.MetadataAddress = _jwtOption.MetaDataAddress;
+        options.RequireHttpsMetadata = !_isDevelopment;
+        // options.TokenValidationParameters = new()
+        // {
+        //     ValidateIssuer = true,
+        //     ValidIssuer = _jwtOption.Authority,
+        //
+        //     ValidateAudience = true,
+        //     ValidAudience = _jwtOption.Audience,
+        //
+        //     ValidateLifetime = true,
+        //
+        //     ValidateIssuerSigningKey = false,
+        // };
     }
 }

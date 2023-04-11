@@ -1,8 +1,5 @@
 using Althea;
 using Althea.Controllers;
-using Althea.Data;
-using Althea.Infrastructure.EntityFrameworkCore;
-using Althea.Infrastructure.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using OpenAI.GPT3.Extensions;
@@ -60,7 +57,7 @@ try
 
     builder.Services.AddByLifeScope("Althea");
 
-    builder.Services.AddScoped<IAuditInfoProvider, UnknownAuditInfoProvider>();
+    builder.Services.AddScoped<IAuthInfoProvider, JwtAuthInfoProvider>();
     builder.Services.AddDbContext<AltheaDbContext>(optionsBuilder =>
         optionsBuilder.UseNpgsql(configuration.GetConnectionString("Althea")));
 
@@ -87,7 +84,11 @@ try
     app.UseBasicException();
     app.UseCors();
 
+    app.UseRouting();
+
+    app.UseAuthentication();
     app.UseAuthorization();
+    app.UseJwtParsing();
 
     app.MapControllers();
     app.MapHub<ChatHub>("/hub/chat");

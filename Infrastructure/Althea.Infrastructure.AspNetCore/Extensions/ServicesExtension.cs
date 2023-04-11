@@ -24,7 +24,11 @@ public static class ServicesExtension
 
     public static IServiceCollection AddJwtBearer(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer();
 
         services.Configure<JwtOption>(configuration.GetSection(nameof(JwtOption)));

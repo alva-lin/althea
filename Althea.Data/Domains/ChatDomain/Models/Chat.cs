@@ -5,6 +5,8 @@ namespace Althea.Data.Domains.ChatDomain;
 
 public class Chat : DeletableEntity<long>
 {
+    [StringLength(12)] public string Own { get; set; } = null!;
+
     /// <summary>
     ///     聊天名称
     /// </summary>

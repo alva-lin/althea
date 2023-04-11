@@ -19,6 +19,7 @@ namespace Althea.Data.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Own = table.Column<string>(type: "character varying(12)", maxLength: 12, nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Model = table.Column<string>(type: "text", nullable: false),
                     CurrentUsage = table.Column<int>(type: "integer", nullable: false),

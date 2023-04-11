@@ -1,10 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 using Althea.Core.Services;
-using Althea.Infrastructure;
 using Althea.Infrastructure.DependencyInjection;
 using Althea.Infrastructure.Extensions;
-using Microsoft.Extensions.Logging;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.ObjectModels;
 
@@ -83,24 +81,29 @@ public class ChatService : BasicService, IChatService
     private readonly AltheaDbContext _context;
 
     private readonly IMapper _mapper;
+
     private readonly IOpenAIService _openAIService;
 
     private readonly TikTokenService _tikTokenService;
 
+    private readonly IAuthInfoProvider _authInfoProvider;
+
     public ChatService(ILogger<ChatService> logger, IOpenAIService openAIService, AltheaDbContext context,
-        TikTokenService tikTokenService, IMapper mapper)
+        TikTokenService tikTokenService, IMapper mapper, IAuthInfoProvider authInfoProvider)
         : base(logger)
     {
         _openAIService = openAIService;
         _context = context;
         _tikTokenService = tikTokenService;
         _mapper = mapper;
+        _authInfoProvider = authInfoProvider;
     }
 
     public async Task<ChatInfoDto[]> GetChatsAsync(bool includeMessage = false, bool includeLog = false,
         CancellationToken cancellationToken = default)
     {
         var chats = await _context.Set<Chat>().AsNoTracking().AsQueryable()
+            .Where(chat => chat.Own == _authInfoProvider.CurrentUser)
             .IncludeIf(includeMessage, chat => chat.Messages)
             .IncludeIf(includeLog, chat => chat.Logs)
             .OrderByDescending(chat => chat.Id)
@@ -115,7 +118,8 @@ public class ChatService : BasicService, IChatService
         var chat = new Chat
         {
             Name = "Default Chat",
-            Model = Models.ChatGpt3_5Turbo
+            Model = Models.ChatGpt3_5Turbo,
+            Own = _authInfoProvider.CurrentUser
         };
         await _context.Set<Chat>().AddAsync(chat);
         await _context.SaveChangesAsync();
@@ -214,9 +218,6 @@ public class ChatService : BasicService, IChatService
         Logger.Log(LogLevel.Debug, "Chat Message Received: {Received}", received.ToJson(0));
 
         await _context.SaveChangesAsync(CancellationToken.None);
-
-        sentDto = _mapper.Map<MessageDto>(sent);
-        var receivedDto = _mapper.Map<MessageDto>(received);
 
         yield return new(_mapper.Map<MessageDto>(sent), _mapper.Map<MessageDto>(received), true);
     }
