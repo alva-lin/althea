@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Althea.Infrastructure.AspNetCore;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public abstract class BasicApiController : ControllerBase

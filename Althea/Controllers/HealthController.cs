@@ -6,6 +6,7 @@ namespace Althea.Controllers;
 /// <summary>
 ///     健康检测控制器
 /// </summary>
+[AllowAnonymous]
 public class HealthController : BasicApiController
 {
     public HealthController(ILogger<HealthController> logger)
@@ -17,7 +18,6 @@ public class HealthController : BasicApiController
     ///     心跳检测
     /// </summary>
     /// <returns></returns>
-    [Authorize]
     [HttpGet("[action]")]
     public IActionResult HeartBeat()
     {
