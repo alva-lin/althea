@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-
 using Althea.Infrastructure.EntityFrameworkCore.Converters;
 using Althea.Infrastructure.EntityFrameworkCore.Entities;
 
@@ -20,7 +19,7 @@ public static class DbContextExtension
         var entityTypes = assemblies.SelectMany(assembly =>
                 assembly.GetTypes().Where(t =>
                     t is { IsClass: true, IsAbstract: false }
-                 && t.IsAssignableTo(typeof(IBasicEntity))))
+                    && t.IsAssignableTo(typeof(IBasicEntity))))
             .Distinct();
 
         foreach (var entityType in entityTypes)
@@ -48,7 +47,9 @@ public static class DbContextExtension
                 entityConfigurationType = typeof(BasicEntityConfiguration<,>).MakeGenericType(entityType, tKey);
             }
 
-            Console.WriteLine("Configuring: " + entityType.Name);
+#if DEBUG
+            Console.WriteLine("Configuring " + entityType.Name);
+#endif
             var entityConfiguration = Activator.CreateInstance(entityConfigurationType);
             modelBuilder.ApplyConfiguration((dynamic)entityConfiguration!);
         }
@@ -60,10 +61,10 @@ public static class DbContextExtension
             typeof(DeletableEntityConfiguration<,>)
         };
         var entityConfigurationTypes = assemblies.SelectMany(assembly =>
-                assembly.GetTypes().Where(t =>
-                    t is { IsClass: true, IsAbstract: false, IsGenericType: false, BaseType.IsGenericType: true } &&
-                    basicEntityConfigurationTypes.Any(t2 => t2 == t.BaseType.GetGenericTypeDefinition()))
-            );
+            assembly.GetTypes().Where(t =>
+                t is { IsClass: true, IsAbstract: false, IsGenericType: false, BaseType.IsGenericType: true } &&
+                basicEntityConfigurationTypes.Any(t2 => t2 == t.BaseType.GetGenericTypeDefinition()))
+        );
         foreach (var entityConfigurationType in entityConfigurationTypes)
         {
             var entityConfiguration = Activator.CreateInstance(entityConfigurationType);
@@ -85,13 +86,12 @@ public static class DbContextExtension
                 if (property.ClrType is { IsClass: true } &&
                     property.ClrType.IsAssignableFrom(typeof(IAudit)))
                 {
-                    builder.Entity(entityType.ClrType).OwnsOne(property.ClrType, "Audit", navigationBuilder =>
-                    {
-                        navigationBuilder.ToJson();
-                    });
+                    builder.Entity(entityType.ClrType).OwnsOne(property.ClrType, "Audit",
+                        navigationBuilder => { navigationBuilder.ToJson(); });
                 }
             }
         }
+
         return builder;
     }
 
@@ -110,6 +110,7 @@ public static class DbContextExtension
                 }
             }
         }
+
         return builder;
     }
 
@@ -126,6 +127,7 @@ public static class DbContextExtension
                 }
             }
         }
+
         return builder;
     }
 
@@ -142,6 +144,7 @@ public static class DbContextExtension
                 }
             }
         }
+
         return builder;
     }
 }

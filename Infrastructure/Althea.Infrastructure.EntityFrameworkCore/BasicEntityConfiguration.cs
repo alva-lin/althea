@@ -1,5 +1,4 @@
 ﻿using Althea.Infrastructure.EntityFrameworkCore.Entities;
-
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Althea.Infrastructure.EntityFrameworkCore;
@@ -20,7 +19,9 @@ public class BasicEntityConfiguration<TEntity, TKey> : IEntityTypeConfiguration<
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).ValueGeneratedOnAdd();
 
+#if DEBUG
         Console.WriteLine("Configuring BasicEntityConfiguration: " + typeof(TEntity).Name);
+#endif
     }
 }
 
@@ -42,7 +43,9 @@ public class BasicEntityWithAuditConfiguration<TEntity, TKey, TAudit> : BasicEnt
         // 使用 PostgreSQL 的 jsonb 类型
         builder.Property(e => e.Audit).HasColumnType("jsonb");
 
+#if DEBUG
         Console.WriteLine("Configuring BasicEntityWithAuditConfiguration: " + typeof(TEntity).Name);
+#endif
     }
 }
 
@@ -57,6 +60,8 @@ public class
 
         builder.HasQueryFilter(entity => !entity.Audit.IsDeleted);
 
+#if DEBUG
         Console.WriteLine("Configuring DeletableEntityConfiguration: " + typeof(TEntity).Name);
+#endif
     }
 }
