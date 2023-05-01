@@ -4,13 +4,16 @@ public class ChatProfile : Profile
 {
     public ChatProfile()
     {
-        CreateMap<Chat, ChatInfoDto>();
-
-        CreateMap<Message, MessageDto>()
-            .ForMember(dto => dto.SendTime, s => s.MapFrom(s => s.Audit.CreationTime))
+        CreateMap<Chat, ChatInfoDto>()
+            .ForMember(dto => dto.MessageIds, s => s.MapFrom(source => source.Messages.Select(m => m.Id).ToArray()))
             ;
 
-        CreateMap<ChatOperatorLog, ChatOperatorLogDto>()
-            .ForMember(dto => dto.CreationTime, s => s.MapFrom(s => s.Audit.CreationTime));
+        CreateMap<Message, MessageDto>()
+            .ForMember(dto => dto.SendTime, s => s.MapFrom(source => source.Audit.CreationTime))
+            .ForMember(dto => dto.ChatId, s => s.MapFrom(source => source.Chat.Id))
+            .ForMember(dto => dto.PrevMessageId, s => s.MapFrom((source, _) => source.PrevMessage?.Id))
+            .ForMember(dto => dto.NextMessageIds,
+                s => s.MapFrom(source => source.NextMessages.Select(m => m.Id).ToArray()))
+            ;
     }
 }

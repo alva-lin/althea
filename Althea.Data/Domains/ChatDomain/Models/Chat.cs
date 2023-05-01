@@ -5,7 +5,11 @@ namespace Althea.Data.Domains.ChatDomain;
 
 public class Chat : DeletableEntity<long>
 {
-    [StringLength(12)] public string Own { get; set; } = null!;
+    /// <summary>
+    ///     创建人
+    /// </summary>
+    [StringLength(12)]
+    public string Own { get; set; } = null!;
 
     /// <summary>
     ///     聊天名称
@@ -18,11 +22,6 @@ public class Chat : DeletableEntity<long>
     public string Model { get; set; } = null!;
 
     /// <summary>
-    ///     当前消息的 token 数
-    /// </summary>
-    public int CurrentUsage { get; protected set; }
-
-    /// <summary>
     ///     累计使用的 token 总额
     /// </summary>
     public int TotalUsage { get; protected set; }
@@ -32,39 +31,75 @@ public class Chat : DeletableEntity<long>
     /// </summary>
     public DateTime? LastSendTime { get; protected set; }
 
-    public ICollection<Message> Messages { get; set; } = new List<Message>();
-
-    public ICollection<ChatOperatorLog> Logs { get; set; } = new List<ChatOperatorLog>();
+    /// <summary>
+    ///     消息列表
+    /// </summary>
+    public List<Message> Messages { get; set; } = new();
 
     /// <summary>
-    ///     文本总长度
+    ///     请求日志列表
     /// </summary>
-    public int TotalLength => Messages.Sum(message => message.Content.Length);
+    public List<RequestLog> Logs { get; set; } = new();
+
+    private Message? GetMessage(long messageId)
+    {
+        return Messages.FirstOrDefault(message => message.Id == messageId);
+    }
 
     /// <summary>
-    ///     消息总数
+    ///     根据最后一条消息 ID 获取消息上下文
     /// </summary>
-    public int TotalCount { get; set; }
+    /// <param name="lastMessageId">最后一条消息的 ID</param>
+    /// <returns></returns>
+    private Message[] GetChatContext(long lastMessageId)
+    {
+        var lastMessage = GetMessage(lastMessageId);
+        if (lastMessage is null) return Array.Empty<Message>();
 
-    /// <summary>
-    ///     调用 API 时，发送的消息
-    /// </summary>
-    [NotMapped]
-    public List<ChatMessage> ChatMessages => Messages.Select(GetChatMessage).ToList();
+        var messages = new List<Message>();
+        var message = lastMessage;
+        while (message is not null)
+        {
+            messages.Add(message);
+            message = message.PrevMessage;
+        }
 
-    public Message AddMessage(AltheaDbContext dbContext, TikTokenService tikTokenService, string content,
-        MessageType type)
+        return messages.ToArray();
+    }
+
+    public ChatMessage[] GetChatMessages(long lastMessageId)
+    {
+        return GetChatContext(lastMessageId).Select(GetChatMessage).ToArray();
+    }
+
+    public Message AddMessage(
+        AltheaDbContext dbContext, TikTokenService tikTokenService,
+        long? lastMessageId,
+        string content, MessageType type)
     {
         LastSendTime = DateTime.UtcNow;
+
+        Message? prevMessage = null;
+        if (lastMessageId is not null)
+        {
+            prevMessage = GetMessage(lastMessageId.Value);
+            if (prevMessage is null) throw new ArgumentException($"last message not found: {lastMessageId.Value}");
+        }
 
         var message = new Message
         {
             Chat = this,
-            Order = ++TotalCount,
+            Order = Messages.Count,
             Type = type,
             Content = content,
-            Usage = tikTokenService.CalculateTokenLength(content, Model)
+            Usage = tikTokenService.CalculateTokenLength(content, Model),
+            PrevMessage = prevMessage
         };
+        if (prevMessage is not null)
+        {
+            prevMessage.NextMessages.Add(message);
+            dbContext.Update(prevMessage);
+        }
 
         Messages.Add(message);
         dbContext.Add(message);
@@ -73,31 +108,33 @@ public class Chat : DeletableEntity<long>
         return message;
     }
 
-    public ChatOperatorLog AddSendLog(AltheaDbContext dbContext, TikTokenService tikTokenService, Message sent,
-        string receivedMessage, out Message received)
+    public RequestLog AddRequestLog(
+        AltheaDbContext dbContext, TikTokenService tikTokenService,
+        long sendMessageId,
+        string receivedMessage,
+        out Message received)
     {
         // 添加接收到的消息
-        received = AddMessage(dbContext, tikTokenService, receivedMessage, MessageType.Assistant);
+        received = AddMessage(dbContext, tikTokenService, sendMessageId, receivedMessage, MessageType.Assistant);
 
         // 计算 prompt 的 token 数
         // API 实际计算时，每条消息的前面都会加上 System/User/Assistant，所以这里加上 5
         var usage = Messages.Sum(message => message.Usage + 5);
 
         // 添加操作日志
-        var log = new ChatOperatorLog
+        var log = new RequestLog
         {
-            Operator = ChatOperator.Send,
+            Success = true,
             Chat = this,
-            Message = sent,
-            Received = received,
+            Prompts = Messages.ToArray()[..^1],
             PromptUsage = usage - received.Usage,
+            Completion = received,
             CompletionUsage = received.Usage
         };
         dbContext.Add(log);
         Logs.Add(log);
 
         // 更新当前 token 数
-        CurrentUsage = usage;
         TotalUsage += usage;
 
         dbContext.Update(this);
@@ -126,6 +163,6 @@ public class ChatEntityConfiguration : DeletableEntityConfiguration<Chat, long>
 
         builder.HasMany(chat => chat.Logs).WithOne(log => log.Chat).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
 
-        Console.WriteLine("ChatEntityConfiguration.Configure");
+        Console.WriteLine("Chat.Configure");
     }
 }

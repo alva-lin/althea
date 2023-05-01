@@ -16,9 +16,10 @@ public class ChatHub : Hub
         _logger = logger;
     }
 
-    public async IAsyncEnumerable<ChatResponse> SendMessage(long id, string sent)
+    public async IAsyncEnumerable<ChatResponse> SendMessage(long chatId, long lastMessageId, string sent)
     {
-        await foreach (var received in _chatService.SendMessageAsync(id, sent, CancellationToken.None))
+        await foreach (var received in _chatService.SendMessageAsync(chatId, lastMessageId, sent,
+            CancellationToken.None))
         {
             yield return received;
         }

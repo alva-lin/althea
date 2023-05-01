@@ -1,5 +1,5 @@
-﻿using Althea.Data.Domains.ChatDomain;
-using Althea.Models;
+﻿using System.Runtime.CompilerServices;
+using Althea.Data.Domains.ChatDomain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Althea.Controllers;
@@ -23,7 +23,7 @@ public class ChatController : BasicApiController
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<ResponseListResult<ChatInfoDto>> GetChatListAsync(CancellationToken cancellationToken = default)
+    public async Task<ResponseResult<ChatInfoDto[]>> GetChatListAsync(CancellationToken cancellationToken = default)
     {
         return await _chatService.GetChatsAsync(false, false, cancellationToken);
     }
@@ -86,17 +86,19 @@ public class ChatController : BasicApiController
     }
 
     /// <summary>
-    ///     添加聊天机器人的设定
+    ///     发送消息
     /// </summary>
-    /// <param name="chatId"></param>
-    /// <param name="requestDtoDto"></param>
+    /// <param name="chatId">聊天Id</param>
+    /// <param name="lastMessageId">最后一条消息的id</param>
+    /// <param name="message">发送内容</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("{chatId}/system-message")]
-    public async Task<ResponseResult<bool>> AddSystemMessageAsync(long chatId,
-        [FromBody] AddSystemMessageRequestDto requestDtoDto,
-        CancellationToken cancellationToken)
+    [HttpPost("{chatId}/send")]
+    public async IAsyncEnumerable<ResponseResult<ChatResponse>> SendMessage(
+        long chatId, long lastMessageId, string message,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        return await _chatService.AddSystemMessageAsync(chatId, requestDtoDto.SystemMessage, cancellationToken);
+        await foreach (var received in _chatService.SendMessageAsync(chatId, lastMessageId, message, cancellationToken))
+            yield return received;
     }
 }
