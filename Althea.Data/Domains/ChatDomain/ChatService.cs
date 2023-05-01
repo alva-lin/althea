@@ -2,7 +2,6 @@
 using System.Text;
 using Althea.Core.Services;
 using Althea.Infrastructure.DependencyInjection;
-using Althea.Infrastructure.Extensions;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.ObjectModels;
 
@@ -56,22 +55,14 @@ public interface IChatService
     Task<MessageDto[]> GetMessagesAsync(long chatId, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     添加聊天机器人的设定
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="message"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<bool> AddSystemMessageAsync(long id, string message, CancellationToken cancellationToken);
-
-    /// <summary>
     ///     发送消息
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="chatId"></param>
+    /// <param name="lastMessageId"></param>
     /// <param name="message"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    IAsyncEnumerable<ChatResponse> SendMessageAsync(long id, string message,
+    IAsyncEnumerable<ChatResponse> SendMessageAsync(long chatId, long lastMessageId, string message,
         CancellationToken cancellationToken);
 }
 
@@ -98,6 +89,8 @@ public class ChatService : BasicService, IChatService
         _mapper = mapper;
         _authInfoProvider = authInfoProvider;
     }
+
+    #region Chat
 
     public async Task<ChatInfoDto[]> GetChatsAsync(bool includeMessage = false, bool includeLog = false,
         CancellationToken cancellationToken = default)
@@ -152,34 +145,37 @@ public class ChatService : BasicService, IChatService
         return true;
     }
 
+    #endregion
+
+    #region Message
+
     public async Task<MessageDto[]> GetMessagesAsync(long chatId, CancellationToken cancellationToken)
     {
         var chat = await FindChatAsync(chatId, cancellationToken, true);
         return _mapper.Map<MessageDto[]>(chat.Messages);
     }
 
-    public async Task<bool> AddSystemMessageAsync(long id, string message, CancellationToken cancellationToken)
-    {
-        var chat = await FindChatAsync(id, cancellationToken, true);
-        chat.AddMessage(_context, _tikTokenService, message, MessageType.System);
-        await _context.SaveChangesAsync(cancellationToken);
-        return true;
-    }
-
-    public async IAsyncEnumerable<ChatResponse> SendMessageAsync(long id, string message,
+    public async IAsyncEnumerable<ChatResponse> SendMessageAsync(long chatId, long lastMessageId, string message,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var sb = new StringBuilder();
-        var chat = await FindChatAsync(id, cancellationToken, true);
+        var chat = await FindChatAsync(chatId, cancellationToken, true);
 
-        message = message.Trim();
-        var sent = chat.AddMessage(_context, _tikTokenService, message, MessageType.User);
+        var sent = chat.AddMessage(_context, _tikTokenService, lastMessageId, message.Trim(), MessageType.User);
         var sentDto = _mapper.Map<MessageDto>(sent);
-        Logger.Log(LogLevel.Debug, "Chat Message Sent: {Sent}", sent.ToJson(0));
+        yield return new(sentDto, new()
+        {
+            ChatId = chatId,
+            Order = sent.Order + 1,
+            Content = string.Empty,
+            Type = MessageType.Assistant,
+            Usage = 0,
+            SendTime = DateTime.UtcNow
+        }, false);
 
         var result = _openAIService.ChatCompletion.CreateCompletionAsStream(new()
         {
-            Messages = chat.ChatMessages
+            Messages = chat.GetChatMessages(sent.Id)
         }, chat.Model, cancellationToken);
 
         await foreach (var item in result.WithCancellation(cancellationToken))
@@ -195,7 +191,7 @@ public class ChatService : BasicService, IChatService
 
                 var tempReceived = new MessageDto
                 {
-                    ChatId = id,
+                    ChatId = chatId,
                     Order = sent.Order + 1,
                     Content = content,
                     Type = MessageType.Assistant,
@@ -214,20 +210,24 @@ public class ChatService : BasicService, IChatService
         }
 
         var receivedMessage = sb.ToString().Trim();
-        chat.AddSendLog(_context, _tikTokenService, sent, receivedMessage, out var received);
-        Logger.Log(LogLevel.Debug, "Chat Message Received: {Received}", received.ToJson(0));
+        var log = chat.AddRequestLog(_context, _tikTokenService, sent.Id, receivedMessage, out var received);
+        Logger.LogInformation("Request Log: {Log}", log.GetLogInfo());
 
         await _context.SaveChangesAsync(CancellationToken.None);
 
         yield return new(_mapper.Map<MessageDto>(sent), _mapper.Map<MessageDto>(received), true);
     }
 
+    #endregion
+
+    #region Private Methods
+
     private async Task<Chat> FindChatAsync(long id,
         CancellationToken cancellationToken = default, bool includeMessage = false, bool includeLog = false,
         bool ignoreGlobalQuery = false)
     {
         return await GetChatAsync(id, cancellationToken, includeMessage, includeLog, ignoreGlobalQuery)
-               ?? throw new("Chat not found");
+            ?? throw new("Chat not found");
     }
 
     private Task<Chat?> GetChatAsync(long id,
@@ -245,4 +245,6 @@ public class ChatService : BasicService, IChatService
 
         return query.FirstOrDefaultAsync(chat => chat.Id == id, cancellationToken);
     }
+
+    #endregion
 }

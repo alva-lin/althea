@@ -35,9 +35,6 @@ namespace Althea.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<int>("CurrentUsage")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("LastSendTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -54,56 +51,12 @@ namespace Althea.Data.Migrations
                         .HasMaxLength(12)
                         .HasColumnType("character varying(12)");
 
-                    b.Property<int>("TotalCount")
-                        .HasColumnType("integer");
-
                     b.Property<int>("TotalUsage")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.ToTable("Chat", (string)null);
-                });
-
-            modelBuilder.Entity("Althea.Data.Domains.ChatDomain.ChatOperatorLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<BasicAudit>("Audit")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<long>("ChatId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("CompletionUsage")
-                        .HasColumnType("integer");
-
-                    b.Property<long>("MessageId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Operator")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PromptUsage")
-                        .HasColumnType("integer");
-
-                    b.Property<long>("ReceivedId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChatId");
-
-                    b.HasIndex("MessageId");
-
-                    b.HasIndex("ReceivedId");
-
-                    b.ToTable("ChatOperatorLog", (string)null);
                 });
 
             modelBuilder.Entity("Althea.Data.Domains.ChatDomain.Message", b =>
@@ -128,6 +81,9 @@ namespace Althea.Data.Migrations
                     b.Property<long>("Order")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("PrevMessageId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
@@ -138,29 +94,64 @@ namespace Althea.Data.Migrations
 
                     b.HasIndex("ChatId");
 
+                    b.HasIndex("PrevMessageId");
+
                     b.ToTable("Message", (string)null);
                 });
 
-            modelBuilder.Entity("Althea.Data.Domains.ChatDomain.ChatOperatorLog", b =>
+            modelBuilder.Entity("Althea.Data.Domains.ChatDomain.RequestLog", b =>
                 {
-                    b.HasOne("Althea.Data.Domains.ChatDomain.Chat", "Chat")
-                        .WithMany("Logs")
-                        .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
 
-                    b.HasOne("Althea.Data.Domains.ChatDomain.Message", "Message")
-                        .WithMany()
-                        .HasForeignKey("MessageId");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.HasOne("Althea.Data.Domains.ChatDomain.Message", "Received")
-                        .WithMany()
-                        .HasForeignKey("ReceivedId");
+                    b.Property<BasicAudit>("Audit")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
 
-                    b.Navigation("Chat");
+                    b.Property<long>("ChatId")
+                        .HasColumnType("bigint");
 
-                    b.Navigation("Message");
+                    b.Property<long>("CompletionId")
+                        .HasColumnType("bigint");
 
-                    b.Navigation("Received");
+                    b.Property<int>("CompletionUsage")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ErrorInfo")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PromptUsage")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.HasIndex("CompletionId")
+                        .IsUnique();
+
+                    b.ToTable("RequestLog", (string)null);
+                });
+
+            modelBuilder.Entity("MessageRequestLog", b =>
+                {
+                    b.Property<long>("PromptsId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PromptsLogId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("PromptsId", "PromptsLogId");
+
+                    b.HasIndex("PromptsLogId");
+
+                    b.ToTable("MessageRequestLog");
                 });
 
             modelBuilder.Entity("Althea.Data.Domains.ChatDomain.Message", b =>
@@ -171,7 +162,45 @@ namespace Althea.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Althea.Data.Domains.ChatDomain.Message", "PrevMessage")
+                        .WithMany("NextMessages")
+                        .HasForeignKey("PrevMessageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Chat");
+
+                    b.Navigation("PrevMessage");
+                });
+
+            modelBuilder.Entity("Althea.Data.Domains.ChatDomain.RequestLog", b =>
+                {
+                    b.HasOne("Althea.Data.Domains.ChatDomain.Chat", "Chat")
+                        .WithMany("Logs")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Althea.Data.Domains.ChatDomain.Message", "Completion")
+                        .WithOne("CompletionLog")
+                        .HasForeignKey("Althea.Data.Domains.ChatDomain.RequestLog", "CompletionId");
+
+                    b.Navigation("Chat");
+
+                    b.Navigation("Completion");
+                });
+
+            modelBuilder.Entity("MessageRequestLog", b =>
+                {
+                    b.HasOne("Althea.Data.Domains.ChatDomain.Message", null)
+                        .WithMany()
+                        .HasForeignKey("PromptsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Althea.Data.Domains.ChatDomain.RequestLog", null)
+                        .WithMany()
+                        .HasForeignKey("PromptsLogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Althea.Data.Domains.ChatDomain.Chat", b =>
@@ -179,6 +208,13 @@ namespace Althea.Data.Migrations
                     b.Navigation("Logs");
 
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Althea.Data.Domains.ChatDomain.Message", b =>
+                {
+                    b.Navigation("CompletionLog");
+
+                    b.Navigation("NextMessages");
                 });
 #pragma warning restore 612, 618
         }

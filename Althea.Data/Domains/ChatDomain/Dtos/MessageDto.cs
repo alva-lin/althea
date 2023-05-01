@@ -6,6 +6,12 @@ public class MessageDto
 
     public long ChatId { get; set; }
 
+    public long? PrevMessageId { get; set; }
+
+    public long[] NextMessageIds { get; set; } = Array.Empty<long>();
+
+    public bool IsRoot => PrevMessageId is null;
+
     /// <summary>
     ///     序号
     /// </summary>

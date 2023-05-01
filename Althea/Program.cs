@@ -65,7 +65,7 @@ try
 
     builder.Services.Configure<SystemOption>(configuration.GetSection(nameof(SystemOption)));
 
-    builder.Services.AddOpenAIService(options => { options.ApiKey = configuration["OpenAI:ApiKey"]!; });
+    builder.Services.AddOpenAIService();
 
     var app = builder.Build();
 
