@@ -29,6 +29,11 @@
 				"IBM.output-colorizer"
 			]
 		}
+	},
+	"portsAttributes": {
+		"5173": {
+			"label": "backend"
+		}
 	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
