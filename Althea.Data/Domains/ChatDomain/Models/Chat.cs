@@ -41,9 +41,11 @@ public class Chat : DeletableEntity<long>
     /// </summary>
     public List<RequestLog> Logs { get; set; } = new();
 
-    private Message? GetMessage(long messageId)
+    private Message? GetMessage(long? messageId = null)
     {
-        return Messages.FirstOrDefault(message => message.Id == messageId);
+        return messageId is null
+            ? Messages.Last()
+            : Messages.FirstOrDefault(message => message.Id == messageId);
     }
 
     /// <summary>
@@ -51,7 +53,7 @@ public class Chat : DeletableEntity<long>
     /// </summary>
     /// <param name="lastMessageId">最后一条消息的 ID</param>
     /// <returns></returns>
-    private Message[] GetChatContext(long lastMessageId)
+    public IEnumerable<Message> GetChatContext(long? lastMessageId = null)
     {
         var lastMessage = GetMessage(lastMessageId);
         if (lastMessage is null) return Array.Empty<Message>();
@@ -64,7 +66,9 @@ public class Chat : DeletableEntity<long>
             message = message.PrevMessage;
         }
 
-        return messages.ToArray();
+        messages.Reverse();
+
+        return messages;
     }
 
     public ChatMessage[] GetChatMessages(long lastMessageId)
@@ -95,11 +99,7 @@ public class Chat : DeletableEntity<long>
             Usage = tikTokenService.CalculateTokenLength(content, Model),
             PrevMessage = prevMessage
         };
-        if (prevMessage is not null)
-        {
-            prevMessage.NextMessages.Add(message);
-            dbContext.Update(prevMessage);
-        }
+        prevMessage?.NextMessages.Add(message);
 
         Messages.Add(message);
         dbContext.Add(message);
@@ -126,7 +126,7 @@ public class Chat : DeletableEntity<long>
         {
             Success = true,
             Chat = this,
-            Prompts = Messages.ToArray()[..^1],
+            Prompts = Messages.ToArray()[..^1].ToList(),
             PromptUsage = usage - received.Usage,
             Completion = received,
             CompletionUsage = received.Usage

@@ -18,9 +18,4 @@ public class ChatInfoDto
     ///     最后一次发送消息的时间
     /// </summary>
     public DateTime? LastSendTime { get; set; }
-
-    /// <summary>
-    ///     消息列表
-    /// </summary>
-    public long[] MessageIds { get; set; } = Array.Empty<long>();
 }
