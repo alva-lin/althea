@@ -26,7 +26,20 @@ public class ChatController : BasicApiController
     [HttpGet]
     public async Task<ResponseResult<ChatInfoDto[]>> GetChatListAsync(CancellationToken cancellationToken = default)
     {
-        return await _chatService.GetChatsAsync(false, false, cancellationToken);
+        return await _chatService.GetChatsAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     获取聊天信息
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpGet("/{id:long}")]
+    public async Task<ResponseResult<ChatInfoDto>> GetChatInfoAsync(long id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _chatService.GetChatInfoAsync(id, cancellationToken);
     }
 
     /// <summary>
@@ -73,19 +86,6 @@ public class ChatController : BasicApiController
     public async Task<ResponseResult<bool>> RestoreChatAsync(long id)
     {
         return await _chatService.RestoreChatAsync(id);
-    }
-
-    /// <summary>
-    ///     获取聊天记录
-    /// </summary>
-    /// <param name="chatId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpGet("{chatId}/messages")]
-    public async Task<ResponseListResult<MessageDto>> GetMessagesAsync(long chatId,
-        CancellationToken cancellationToken = default)
-    {
-        return await _chatService.GetMessagesAsync(chatId, cancellationToken);
     }
 
     /// <summary>

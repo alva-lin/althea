@@ -13,11 +13,17 @@ public interface IChatService
     /// <summary>
     ///     获取聊天列表
     /// </summary>
-    /// <param name="includeMessage"></param>
-    /// <param name="includeLog"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<ChatInfoDto[]> GetChatsAsync(bool includeMessage, bool includeLog, CancellationToken cancellationToken);
+    Task<ChatInfoDto[]> GetChatsAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     获取聊天
+    /// </summary>
+    /// <param name="chatId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<ChatInfoDto> GetChatInfoAsync(long chatId, CancellationToken cancellationToken);
 
     /// <summary>
     ///     生成聊天名称
@@ -48,14 +54,6 @@ public interface IChatService
     /// <param name="id"></param>
     /// <returns></returns>
     Task<bool> RestoreChatAsync(long id);
-
-    /// <summary>
-    ///     获取消息列表
-    /// </summary>
-    /// <param name="chatId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<MessageDto[]> GetMessagesAsync(long chatId, CancellationToken cancellationToken);
 
     /// <summary>
     ///     发送消息
@@ -98,18 +96,21 @@ public class ChatService : BasicService, IChatService
 
     #region Chat
 
-    public async Task<ChatInfoDto[]> GetChatsAsync(bool includeMessage = false, bool includeLog = false,
-        CancellationToken cancellationToken = default)
+    public async Task<ChatInfoDto[]> GetChatsAsync(CancellationToken cancellationToken = default)
     {
         var chats = await _context.Set<Chat>().AsNoTracking().AsQueryable()
             .Where(chat => chat.Own == _authInfoProvider.CurrentUser)
-            .IncludeIf(includeMessage, chat => chat.Messages)
-            .IncludeIf(includeLog, chat => chat.Logs)
             .OrderByDescending(chat => chat.Id)
             .AsSplitQuery()
             .ToListAsync(cancellationToken);
 
         return _mapper.Map<ChatInfoDto[]>(chats);
+    }
+
+    public async Task<ChatInfoDto> GetChatInfoAsync(long chatId, CancellationToken cancellationToken = default)
+    {
+        var chat = await FindChatAsync(chatId, true, cancellationToken: cancellationToken);
+        return _mapper.Map<ChatInfoDto>(chat);
     }
 
     public async Task<string> GenerateTitleAsync(long chatId, CancellationToken cancellationToken)
@@ -171,12 +172,6 @@ public class ChatService : BasicService, IChatService
     #endregion
 
     #region Message
-
-    public async Task<MessageDto[]> GetMessagesAsync(long chatId, CancellationToken cancellationToken)
-    {
-        var chat = await FindChatAsync(chatId, true, cancellationToken: cancellationToken);
-        return _mapper.Map<MessageDto[]>(chat.Messages);
-    }
 
     public async IAsyncEnumerable<ChatResponse> SendMessageAsync(string message,
         long? chatId, long? prevMessageId,
