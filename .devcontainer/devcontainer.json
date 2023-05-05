@@ -34,7 +34,7 @@
 		"5173": {
 			"label": "backend"
 		}
-	}
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
@@ -47,7 +47,7 @@
 	//		}
 	// }
 
-	Use 'postCreateCommand' to run commands after the container is created.
+	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "dotnet restore",
 
 	// Configure tool-specific properties.
