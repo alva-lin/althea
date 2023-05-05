@@ -22,7 +22,11 @@
 				"PKief.material-icon-theme",
 				"zhuangtongfa.material-theme",
 				"Gruntfuggly.todo-tree",
-				"pflannery.vscode-versionlens"
+				"pflannery.vscode-versionlens",
+				"emilast.LogFileHighlighter",
+				"humao.rest-client",
+				"EditorConfig.EditorConfig",
+				"IBM.output-colorizer"
 			]
 		}
 	}
