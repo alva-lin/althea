@@ -14,7 +14,7 @@ public class RequestLog : BasicEntityWithAudit<long>
     /// <summary>
     ///     发送的消息
     /// </summary>
-    public Message[] Prompts { get; set; } = Array.Empty<Message>();
+    public List<Message> Prompts { get; set; } = new();
 
     public long[] PromptIds => Prompts.Select(m => m.Id).ToArray();
 

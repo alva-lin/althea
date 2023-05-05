@@ -5,7 +5,6 @@ public class ChatProfile : Profile
     public ChatProfile()
     {
         CreateMap<Chat, ChatInfoDto>()
-            .ForMember(dto => dto.MessageIds, s => s.MapFrom(source => source.Messages.Select(m => m.Id).ToArray()))
             ;
 
         CreateMap<Message, MessageDto>()

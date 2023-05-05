@@ -1,9 +1,11 @@
 using Althea;
-using Althea.Controllers;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using OpenAI.GPT3.Extensions;
 using Serilog;
+
+// ReSharper disable VariableHidesOuterVariable
+// ReSharper disable UnusedParameter.Local
 
 Environment.CurrentDirectory = AppContext.BaseDirectory;
 
@@ -91,7 +93,6 @@ try
     app.UseJwtParsing();
 
     app.MapControllers();
-    app.MapHub<ChatHub>("/hub/chat");
 
     app.Run();
 }

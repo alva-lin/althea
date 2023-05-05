@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Althea.Data.Domains.ChatDomain;
+using Althea.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Althea.Controllers;
@@ -29,13 +30,15 @@ public class ChatController : BasicApiController
     }
 
     /// <summary>
-    ///     新建聊天
+    ///     生成聊天名称
     /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("create")]
-    public async Task<ResponseResult<ChatInfoDto>> CreateChatAsync()
+    [HttpPost("{id:long}/gen-title")]
+    public async Task<ResponseResult<string>> GenerateTitleAsync(long id, CancellationToken cancellationToken)
     {
-        return await _chatService.CreateChatAsync();
+        return await _chatService.GenerateTitleAsync(id, cancellationToken);
     }
 
     /// <summary>
@@ -88,17 +91,16 @@ public class ChatController : BasicApiController
     /// <summary>
     ///     发送消息
     /// </summary>
-    /// <param name="chatId">聊天Id</param>
-    /// <param name="lastMessageId">最后一条消息的id</param>
-    /// <param name="message">发送内容</param>
+    /// <param name="dto"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("{chatId}/send")]
-    public async IAsyncEnumerable<ResponseResult<ChatResponse>> SendMessage(
-        long chatId, long lastMessageId, string message,
+    [HttpPost("send")]
+    public async IAsyncEnumerable<ResponseResult<ChatResponse>> SendMessageAsync(SendMessageRequestDto dto,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        await foreach (var received in _chatService.SendMessageAsync(chatId, lastMessageId, message, cancellationToken))
+        var result =
+            _chatService.SendMessageAsync(dto.Message, dto.ChatId, dto.PrevMessageId, dto.Model, cancellationToken);
+        await foreach (var received in result.WithCancellation(cancellationToken))
             yield return received;
     }
 }

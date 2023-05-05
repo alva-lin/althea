@@ -4,6 +4,7 @@ using Althea.Core.Services;
 using Althea.Infrastructure.DependencyInjection;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.ObjectModels;
+using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace Althea.Data.Domains.ChatDomain;
 
@@ -19,10 +20,12 @@ public interface IChatService
     Task<ChatInfoDto[]> GetChatsAsync(bool includeMessage, bool includeLog, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     新建聊天
+    ///     生成聊天名称
     /// </summary>
+    /// <param name="chatId"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<ChatInfoDto> CreateChatAsync();
+    Task<string> GenerateTitleAsync(long chatId, CancellationToken cancellationToken);
 
     /// <summary>
     ///     重命名聊天
@@ -57,12 +60,15 @@ public interface IChatService
     /// <summary>
     ///     发送消息
     /// </summary>
-    /// <param name="chatId"></param>
-    /// <param name="lastMessageId"></param>
     /// <param name="message"></param>
+    /// <param name="chatId"></param>
+    /// <param name="prevMessageId"></param>
+    /// <param name="model"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    IAsyncEnumerable<ChatResponse> SendMessageAsync(long chatId, long lastMessageId, string message,
+    IAsyncEnumerable<ChatResponse> SendMessageAsync(string message,
+        long? chatId, long? prevMessageId,
+        string? model,
         CancellationToken cancellationToken);
 }
 
@@ -106,17 +112,34 @@ public class ChatService : BasicService, IChatService
         return _mapper.Map<ChatInfoDto[]>(chats);
     }
 
-    public async Task<ChatInfoDto> CreateChatAsync()
+    public async Task<string> GenerateTitleAsync(long chatId, CancellationToken cancellationToken)
     {
-        var chat = new Chat
+        var chat = await FindChatAsync(chatId, true, cancellationToken: cancellationToken);
+
+        var content = chat.GetChatContext().Aggregate(
+            "为下面这段对话归纳出一个准确、简练的标题，不能超过8个字\n",
+            (current, message) => current + "\n" + message.Type.ToString("G") + ": " + message.Content
+        );
+
+        var messages = new[]
         {
-            Name = "Default Chat",
-            Model = Models.ChatGpt3_5Turbo,
-            Own = _authInfoProvider.CurrentUser
+            ChatMessage.FromUser(content)
         };
-        await _context.Set<Chat>().AddAsync(chat);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<ChatInfoDto>(chat);
+
+        var response = await _openAIService.ChatCompletion.CreateCompletion(new()
+        {
+            Messages = messages
+        }, Models.ChatGpt3_5Turbo, cancellationToken);
+
+        if (!response.Successful) return string.Empty;
+
+        var title = response.Choices.First().Message.Content.Trim().Trim('\"').Trim();
+
+        chat.Name = title;
+        _context.Update(chat);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return title;
     }
 
     public async Task<bool> RenameChatAsync(long id, string name)
@@ -151,21 +174,34 @@ public class ChatService : BasicService, IChatService
 
     public async Task<MessageDto[]> GetMessagesAsync(long chatId, CancellationToken cancellationToken)
     {
-        var chat = await FindChatAsync(chatId, cancellationToken, true);
+        var chat = await FindChatAsync(chatId, true, cancellationToken: cancellationToken);
         return _mapper.Map<MessageDto[]>(chat.Messages);
     }
 
-    public async IAsyncEnumerable<ChatResponse> SendMessageAsync(long chatId, long lastMessageId, string message,
+    public async IAsyncEnumerable<ChatResponse> SendMessageAsync(string message,
+        long? chatId, long? prevMessageId,
+        string? model,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var sb = new StringBuilder();
-        var chat = await FindChatAsync(chatId, cancellationToken, true);
 
-        var sent = chat.AddMessage(_context, _tikTokenService, lastMessageId, message.Trim(), MessageType.User);
+        Chat? chat;
+        if (chatId is not null)
+        {
+            chat = await GetChatAsync(chatId.Value, true, cancellationToken: cancellationToken);
+            if (chat is null) throw new($"Chat[{chatId}] not found");
+        }
+        else
+        {
+            chat = await CreateChatAsync(model, cancellationToken);
+            chatId = chat.Id;
+        }
+
+        var sent = chat.AddMessage(_context, _tikTokenService, prevMessageId, message.Trim(), MessageType.User);
         var sentDto = _mapper.Map<MessageDto>(sent);
         yield return new(sentDto, new()
         {
-            ChatId = chatId,
+            ChatId = chatId.Value,
             Order = sent.Order + 1,
             Content = string.Empty,
             Type = MessageType.Assistant,
@@ -191,7 +227,7 @@ public class ChatService : BasicService, IChatService
 
                 var tempReceived = new MessageDto
                 {
-                    ChatId = chatId,
+                    ChatId = chatId.Value,
                     Order = sent.Order + 1,
                     Content = content,
                     Type = MessageType.Assistant,
@@ -222,17 +258,34 @@ public class ChatService : BasicService, IChatService
 
     #region Private Methods
 
-    private async Task<Chat> FindChatAsync(long id,
-        CancellationToken cancellationToken = default, bool includeMessage = false, bool includeLog = false,
-        bool ignoreGlobalQuery = false)
+    private async Task<Chat> CreateChatAsync(string? model = null, CancellationToken cancellationToken = default)
     {
-        return await GetChatAsync(id, cancellationToken, includeMessage, includeLog, ignoreGlobalQuery)
+        if (model != Models.ChatGpt3_5Turbo || model != Models.Gpt_4) model = Models.ChatGpt3_5Turbo;
+
+        var chat = new Chat
+        {
+            Name = "Default Chat",
+            Model = model,
+            Own = _authInfoProvider.CurrentUser
+        };
+        await _context.Set<Chat>().AddAsync(chat, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+        return chat;
+    }
+
+    private async Task<Chat> FindChatAsync(long id,
+        bool includeMessage = false, bool includeLog = false,
+        bool ignoreGlobalQuery = false,
+        CancellationToken cancellationToken = default)
+    {
+        return await GetChatAsync(id, includeMessage, includeLog, ignoreGlobalQuery, cancellationToken)
             ?? throw new("Chat not found");
     }
 
     private Task<Chat?> GetChatAsync(long id,
-        CancellationToken cancellationToken = default, bool includeMessage = false, bool includeLog = false,
-        bool ignoreGlobalQuery = false)
+        bool includeMessage = false, bool includeLog = false,
+        bool ignoreGlobalQuery = false,
+        CancellationToken cancellationToken = default)
     {
         var query = _context.Set<Chat>().AsQueryable()
             .IncludeIf(includeMessage, chat => chat.Messages)
