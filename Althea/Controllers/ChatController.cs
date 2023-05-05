@@ -35,7 +35,7 @@ public class ChatController : BasicApiController
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpGet("/{id:long}")]
+    [HttpGet("{id:long}")]
     public async Task<ResponseResult<ChatInfoDto>> GetChatInfoAsync(long id,
         CancellationToken cancellationToken = default)
     {
