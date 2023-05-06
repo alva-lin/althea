@@ -58,12 +58,12 @@ public class ChatController : BasicApiController
     ///     重命名聊天
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="name"></param>
+    /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost("{id:long}/rename")]
-    public async Task<ResponseResult<bool>> RenameChatAsync(long id, string name)
+    public async Task<ResponseResult<bool>> RenameChatAsync(long id, RenameChatRequestDto dto)
     {
-        return await _chatService.RenameChatAsync(id, name);
+        return await _chatService.RenameChatAsync(id, dto.Title);
     }
 
     /// <summary>
