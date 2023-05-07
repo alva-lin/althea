@@ -4,12 +4,17 @@ namespace Althea.Infrastructure.AspNetCore;
 
 public class JwtAuthInfoProvider : IAuthInfoProvider
 {
-    private readonly IHttpContextAccessor _contextAccessor;
+    private const string UnknownUser = "Unknown";
 
     public JwtAuthInfoProvider(IHttpContextAccessor contextAccessor)
     {
-        _contextAccessor = contextAccessor;
+        CurrentUser = contextAccessor.HttpContext?.User.Identity?.Name ?? UnknownUser;
     }
 
-    public string CurrentUser => _contextAccessor.HttpContext?.User.Identity?.Name ?? "Unknown";
+    public void SetCurrentUser(string user)
+    {
+        CurrentUser = user;
+    }
+
+    public string CurrentUser { get; private set; }
 }

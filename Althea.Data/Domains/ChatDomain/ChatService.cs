@@ -56,6 +56,14 @@ public interface IChatService
     Task<bool> RestoreChatAsync(long id);
 
     /// <summary>
+    ///     获取消息列表
+    /// </summary>
+    /// <param name="chatId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<MessageDto[]> GetMessagesAsync(long chatId, CancellationToken cancellationToken);
+
+    /// <summary>
     ///     发送消息
     /// </summary>
     /// <param name="message"></param>
@@ -172,6 +180,12 @@ public class ChatService : BasicService, IChatService
     #endregion
 
     #region Message
+
+    public async Task<MessageDto[]> GetMessagesAsync(long chatId, CancellationToken cancellationToken)
+    {
+        var chat = await FindChatAsync(chatId, true, cancellationToken: cancellationToken);
+        return _mapper.Map<MessageDto[]>(chat.Messages);
+    }
 
     public async IAsyncEnumerable<ChatResponse> SendMessageAsync(string message,
         long? chatId, long? prevMessageId,

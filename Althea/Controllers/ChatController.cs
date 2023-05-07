@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Althea.Data.Domains.ChatDomain;
+﻿using Althea.Data.Domains.ChatDomain;
 using Althea.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -89,18 +88,15 @@ public class ChatController : BasicApiController
     }
 
     /// <summary>
-    ///     发送消息
+    ///     获取聊天记录
     /// </summary>
-    /// <param name="dto"></param>
+    /// <param name="chatId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("send")]
-    public async IAsyncEnumerable<ResponseResult<ChatResponse>> SendMessageAsync(SendMessageRequestDto dto,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
+    [HttpGet("{chatId}/messages")]
+    public async Task<ResponseListResult<MessageDto>> GetMessagesAsync(long chatId,
+        CancellationToken cancellationToken = default)
     {
-        var result =
-            _chatService.SendMessageAsync(dto.Message, dto.ChatId, dto.PrevMessageId, dto.Model, cancellationToken);
-        await foreach (var received in result.WithCancellation(cancellationToken))
-            yield return received;
+        return await _chatService.GetMessagesAsync(chatId, cancellationToken);
     }
 }
