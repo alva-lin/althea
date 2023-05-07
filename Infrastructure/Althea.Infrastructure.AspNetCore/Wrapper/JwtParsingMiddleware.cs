@@ -15,14 +15,17 @@ public class JwtParsingMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.Request.Headers.TryGetValue("Authorization", out var authorization))
+        var hasToken = context.Request.Headers.TryGetValue("Authorization", out var authorization);
+        if (hasToken)
         {
             var token = authorization.ToString()["Bearer ".Length..].Trim();
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
             var claims = jwtToken.Claims.ToList();
             var claimsIdentity = new ClaimsIdentity(claims, "jwt");
-            claimsIdentity.AddClaim(new(ClaimTypes.Name, jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value!));
+            var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value!;
+            claimsIdentity.AddClaim(new(ClaimTypes.Name, userId));
+            claimsIdentity.AddClaim(new(ClaimTypes.NameIdentifier, userId));
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
             context.User = claimsPrincipal;

@@ -2,10 +2,22 @@ namespace Althea.Infrastructure;
 
 public interface IAuthInfoProvider
 {
-    string CurrentUser { get; }
+    public void SetCurrentUser(string user);
+
+    public string CurrentUser { get; }
 }
 
 public class UnknownAuthInfoProvider : IAuthInfoProvider
 {
-    public string CurrentUser => "Unknown";
+    public UnknownAuthInfoProvider()
+    {
+        CurrentUser = "Unknown";
+    }
+
+    public void SetCurrentUser(string user)
+    {
+        CurrentUser = user;
+    }
+
+    public string CurrentUser { get; private set; }
 }

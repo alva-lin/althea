@@ -1,4 +1,5 @@
 using Althea;
+using Althea.Controllers;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using OpenAI.GPT3.Extensions;
@@ -93,6 +94,7 @@ try
     app.UseJwtParsing();
 
     app.MapControllers();
+    app.MapHub<ChatHub>("/hub/chat");
 
     app.Run();
 }
