@@ -15,10 +15,16 @@ public class JwtParsingMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var hasToken = context.Request.Headers.TryGetValue("Authorization", out var authorization);
-        if (hasToken)
+        var hasHeaderToken = context.Request.Headers.TryGetValue("Authorization", out var headerToken);
+
+        var accessToken = context.Request.Query["access_token"].ToString();
+        var hasQueryToken = accessToken.Length > 0;
+
+        if (hasQueryToken || hasHeaderToken)
         {
-            var token = authorization.ToString()["Bearer ".Length..].Trim();
+            var token = hasQueryToken ? accessToken :
+                hasHeaderToken ? headerToken.ToString()["Bearer ".Length..].Trim() : null;
+
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
             var claims = jwtToken.Claims.ToList();

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Althea.Controllers;
 
-[Authorize]
+// [Authorize]
 public class ChatHub : Hub
 {
     private readonly IChatService _chatService;
@@ -20,6 +20,11 @@ public class ChatHub : Hub
         _authInfoProvider = authInfoProvider;
     }
 
+    private void SetAuthInfo()
+    {
+        _authInfoProvider.SetCurrentUser(Context.UserIdentifier ?? _authInfoProvider.CurrentUser);
+    }
+
     /// <summary>
     ///     发送消息
     /// </summary>
@@ -29,7 +34,7 @@ public class ChatHub : Hub
     public async IAsyncEnumerable<ResponseResult<ChatResponse>> SendMessage(SendMessageRequestDto dto,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        _authInfoProvider.SetCurrentUser(Context.User?.Identity?.Name ?? _authInfoProvider.CurrentUser);
+        SetAuthInfo();
         var result =
             _chatService.SendMessageAsync(dto.Message, dto.ChatId, dto.PrevMessageId, dto.Model, cancellationToken);
         await foreach (var received in result.WithCancellation(cancellationToken))
