@@ -284,16 +284,16 @@ public class ChatService : BasicService, IChatService
 
     private async Task<Chat> FindChatAsync(long id,
         bool includeMessage = false, bool includeLog = false,
-        bool ignoreGlobalQuery = false,
+        bool ignoreGlobalQuery = false, bool onlyMy = true,
         CancellationToken cancellationToken = default)
     {
-        return await GetChatAsync(id, includeMessage, includeLog, ignoreGlobalQuery, cancellationToken)
+        return await GetChatAsync(id, includeMessage, includeLog, ignoreGlobalQuery, onlyMy, cancellationToken)
             ?? throw new("Chat not found");
     }
 
     private Task<Chat?> GetChatAsync(long id,
         bool includeMessage = false, bool includeLog = false,
-        bool ignoreGlobalQuery = false,
+        bool ignoreGlobalQuery = false, bool onlyMy = true,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Set<Chat>().AsQueryable()
@@ -304,6 +304,8 @@ public class ChatService : BasicService, IChatService
         {
             query = query.IgnoreQueryFilters();
         }
+
+        if (onlyMy) query = query.Where(chat => chat.Audit.CreatedBy == _authInfoProvider.CurrentUser);
 
         return query.FirstOrDefaultAsync(chat => chat.Id == id, cancellationToken);
     }
