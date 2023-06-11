@@ -2,6 +2,8 @@ using Althea;
 using Althea.Controllers;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Minio;
 using OpenAI.GPT3.Extensions;
 using Serilog;
 
@@ -69,6 +71,17 @@ try
     builder.Services.Configure<SystemOption>(configuration.GetSection(nameof(SystemOption)));
 
     builder.Services.AddOpenAIService();
+
+    builder.Services.Configure<MinIOOption>(configuration.GetSection(nameof(MinIOOption)));
+    builder.Services.AddSingleton<IMinioClient>(provider =>
+    {
+        var option = provider.GetRequiredService<IOptions<MinIOOption>>().Value;
+        return new MinioClient()
+                .WithEndpoint(option.EndPoint)
+                .WithCredentials(option.AccessKey, option.SecretKey)
+                .Build()
+            ;
+    });
 
     var app = builder.Build();
 

@@ -1,4 +1,6 @@
-﻿namespace Althea.Data.Domains.ChatDomain;
+﻿using Althea.Data.Domains.StorageDomain;
+
+namespace Althea.Data.Domains.ChatDomain;
 
 /// <summary>
 ///     对话消息
@@ -9,6 +11,11 @@ public class Message : DeletableEntity<long>
     ///     聊天
     /// </summary>
     public Chat Chat { get; set; } = null!;
+
+    /// <summary>
+    ///     语音
+    /// </summary>
+    public StorageObject? Voice { get; set; }
 
     /// <summary>
     ///     上一条消息
@@ -67,6 +74,12 @@ public class MessageEntityConfiguration : DeletableEntityConfiguration<Message, 
             .WithOne(message => message.PrevMessage)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder
+            .HasOne(message => message.Voice)
+            .WithOne()
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
 
         Console.WriteLine("Message.Configure");
     }

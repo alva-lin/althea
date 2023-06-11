@@ -6,6 +6,8 @@ public class MessageDto
 
     public long ChatId { get; set; }
 
+    public Guid? VoiceId { get; set; }
+
     public long? PrevMessageId { get; set; }
 
     public long[] NextMessageIds { get; set; } = Array.Empty<long>();
