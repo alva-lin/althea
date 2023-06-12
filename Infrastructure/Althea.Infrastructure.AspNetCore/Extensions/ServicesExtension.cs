@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
+using System.Security.Claims;
 using Althea.Infrastructure.AspNetCore.Authentication;
 using Althea.Infrastructure.AspNetCore.Cors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,6 +26,9 @@ public static class ServicesExtension
 
     public static IServiceCollection AddJwtBearer(this IServiceCollection services, IConfiguration configuration)
     {
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Add("sub", ClaimTypes.Name);
+
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

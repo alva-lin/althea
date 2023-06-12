@@ -4,5 +4,6 @@
         "ASPNETCORE",
         "Npgsql",
         "Serilog"
-    ]
+    ],
+    "dotnet.defaultSolution": "Althea.sln"
 }

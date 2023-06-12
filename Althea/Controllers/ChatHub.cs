@@ -6,23 +6,16 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Althea.Controllers;
 
-// [Authorize]
+[Authorize]
 public class ChatHub : Hub
 {
     private readonly IChatService _chatService;
     private readonly ILogger<ChatHub> _logger;
-    private readonly IAuthInfoProvider _authInfoProvider;
 
-    public ChatHub(IChatService chatService, ILogger<ChatHub> logger, IAuthInfoProvider authInfoProvider)
+    public ChatHub(IChatService chatService, ILogger<ChatHub> logger)
     {
         _chatService = chatService;
         _logger = logger;
-        _authInfoProvider = authInfoProvider;
-    }
-
-    private void SetAuthInfo()
-    {
-        _authInfoProvider.SetCurrentUser(Context.UserIdentifier ?? _authInfoProvider.CurrentUser);
     }
 
     /// <summary>
@@ -34,7 +27,6 @@ public class ChatHub : Hub
     public async IAsyncEnumerable<ResponseResult<ChatResponse>> SendMessage(SendMessageRequestDto dto,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        SetAuthInfo();
         var result =
             _chatService.SendMessageAsync(dto.Message, dto.ChatId, dto.PrevMessageId, dto.Model, cancellationToken);
         await foreach (var received in result.WithCancellation(cancellationToken))

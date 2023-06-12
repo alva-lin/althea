@@ -1,5 +1,4 @@
 ﻿using Althea.Data.Domains.ChatDomain;
-using Althea.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Althea.Controllers;
@@ -57,12 +56,12 @@ public class ChatController : BasicApiController
     ///     重命名聊天
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="dto"></param>
+    /// <param name="newTitle">新聊天标题</param>
     /// <returns></returns>
     [HttpPost("{id:long}/rename")]
-    public async Task<ResponseResult<bool>> RenameChatAsync(long id, RenameChatRequestDto dto)
+    public async Task<ResponseResult<bool>> RenameChatAsync(long id, [FromQuery] string newTitle)
     {
-        return await _chatService.RenameChatAsync(id, dto.Title);
+        return await _chatService.RenameChatAsync(id, newTitle);
     }
 
     /// <summary>

@@ -11,11 +11,4 @@ public static class MiddlewareExtension
 
         return host;
     }
-
-    public static IApplicationBuilder UseJwtParsing(this IApplicationBuilder host)
-    {
-        host.UseMiddleware<JwtParsingMiddleware>();
-
-        return host;
-    }
 }
