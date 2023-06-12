@@ -4,6 +4,7 @@ using Althea.Data;
 using Althea.Infrastructure.EntityFrameworkCore.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Althea.Data.Migrations
 {
     [DbContext(typeof(AltheaDbContext))]
-    partial class AltheaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230611135731_Add_StorageObject")]
+    partial class Add_StorageObject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

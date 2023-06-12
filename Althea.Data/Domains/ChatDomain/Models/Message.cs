@@ -18,6 +18,11 @@ public class Message : DeletableEntity<long>
     public StorageObject? Voice { get; set; }
 
     /// <summary>
+    ///     语音 Id
+    /// </summary>
+    public Guid? VoiceId { get; set; }
+
+    /// <summary>
     ///     上一条消息
     /// </summary>
     public Message? PrevMessage { get; set; }
@@ -77,7 +82,8 @@ public class MessageEntityConfiguration : DeletableEntityConfiguration<Message, 
 
         builder
             .HasOne(message => message.Voice)
-            .WithOne()
+            .WithMany()
+            .HasForeignKey(message => message.VoiceId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
 
