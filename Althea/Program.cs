@@ -104,7 +104,6 @@ try
 
     app.UseAuthentication();
     app.UseAuthorization();
-    app.UseJwtParsing();
 
     app.MapControllers();
     app.MapHub<ChatHub>("/hub/chat");

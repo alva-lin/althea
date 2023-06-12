@@ -26,17 +26,23 @@ public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions
         options.Audience = _jwtOption.Audience;
         options.MetadataAddress = _jwtOption.MetaDataAddress;
         options.RequireHttpsMetadata = !_isDevelopment;
-        // options.TokenValidationParameters = new()
-        // {
-        //     ValidateIssuer = true,
-        //     ValidIssuer = _jwtOption.Authority,
-        //
-        //     ValidateAudience = true,
-        //     ValidAudience = _jwtOption.Audience,
-        //
-        //     ValidateLifetime = true,
-        //
-        //     ValidateIssuerSigningKey = false,
-        // };
+
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+        options.Events ??= new JwtBearerEvents();
+
+        var originalOnMessageReceived = options.Events.OnMessageReceived;
+        options.Events.OnMessageReceived = async context =>
+        {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (originalOnMessageReceived != null) await originalOnMessageReceived(context);
+
+            if (string.IsNullOrEmpty(context.Token))
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub")) context.Token = accessToken;
+            }
+        };
     }
 }
