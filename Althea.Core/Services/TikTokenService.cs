@@ -52,10 +52,10 @@ public class TikTokenService : IService
 
     private GptEncoding GetGptEncoding(string model)
     {
-        if (!_modelDict.TryGetValue(model, out var modelEnum))
-        {
-            throw new ArgumentOutOfRangeException(nameof(model), model, null);
-        }
+        // if (!_modelDict.TryGetValue(model, out var modelEnum))
+        // {
+        //     throw new ArgumentOutOfRangeException(nameof(model), model, null);
+        // }
 
         GptEncoding encoding;
         switch (modelEnum)
