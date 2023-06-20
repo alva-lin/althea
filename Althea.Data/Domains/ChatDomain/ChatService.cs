@@ -2,9 +2,9 @@
 using System.Text;
 using Althea.Core.Services;
 using Althea.Infrastructure.DependencyInjection;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels;
+using OpenAI.ObjectModels.RequestModels;
 
 namespace Althea.Data.Domains.ChatDomain;
 
@@ -269,7 +269,7 @@ public class ChatService : BasicService, IChatService
 
     private async Task<Chat> CreateChatAsync(string? model = null, CancellationToken cancellationToken = default)
     {
-        if (model != Models.ChatGpt3_5Turbo || model != Models.Gpt_4) model = Models.ChatGpt3_5Turbo;
+        if (model != Models.ChatGpt3_5Turbo || model != Models.Gpt_4) model = "gpt-3.5-turbo-16k";
 
         var chat = new Chat
         {
@@ -288,7 +288,7 @@ public class ChatService : BasicService, IChatService
         CancellationToken cancellationToken = default)
     {
         return await GetChatAsync(id, includeMessage, includeLog, ignoreGlobalQuery, onlyMy, cancellationToken)
-            ?? throw new("Chat not found");
+               ?? throw new("Chat not found");
     }
 
     private Task<Chat?> GetChatAsync(long id,
