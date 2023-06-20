@@ -52,6 +52,7 @@ public class TikTokenService : IService
 
     private GptEncoding GetGptEncoding(string model)
     {
+        return TryGetGptEncoding(CL100K_BASE);
         if (!_modelDict.TryGetValue(model, out var modelEnum))
             throw new ArgumentOutOfRangeException(nameof(model), model, null);
 
