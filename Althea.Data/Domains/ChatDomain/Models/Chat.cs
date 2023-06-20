@@ -96,7 +96,7 @@ public class Chat : DeletableEntity<long>
             Order = Messages.Count,
             Type = type,
             Content = content,
-            Usage = tikTokenService.CalculateTokenLength(content, Model),
+            Usage = tikTokenService.CalculateTokenLength(content),
             PrevMessage = prevMessage
         };
         prevMessage?.NextMessages.Add(message);
