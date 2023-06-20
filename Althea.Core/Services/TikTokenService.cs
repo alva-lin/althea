@@ -52,16 +52,16 @@ public class TikTokenService : IService
 
     private GptEncoding GetGptEncoding(string model)
     {
-        // if (!_modelDict.TryGetValue(model, out var modelEnum))
-        // {
-        //     throw new ArgumentOutOfRangeException(nameof(model), model, null);
-        // }
+        if (!_modelDict.TryGetValue(model, out var modelEnum))
+            throw new ArgumentOutOfRangeException(nameof(model), model, null);
 
         GptEncoding encoding;
         switch (modelEnum)
         {
-            case Models.Model.ChatGpt3_5Turbo:
-            case Models.Model.ChatGpt3_5Turbo0301:
+            case Models.Model.Gpt_3_5_Turbo:
+            case Models.Model.Gpt_3_5_Turbo_0613:
+            case Models.Model.Gpt_3_5_Turbo_16k:
+            case Models.Model.Gpt_3_5_Turbo_16k_0613:
             case Models.Model.Gpt_4:
             case Models.Model.Gpt_4_0314:
             case Models.Model.Gpt_4_32k:
@@ -101,9 +101,7 @@ public class TikTokenService : IService
                 encoding = TryGetGptEncoding(R50K_BASE);
                 break;
             default:
-                encoding = TryGetGptEncoding(CL100K_BASE);
-                break;
-            // throw new ArgumentOutOfRangeException(nameof(model), model, null);
+                throw new ArgumentOutOfRangeException(nameof(model), model, null);
         }
 
         return encoding;
@@ -118,6 +116,6 @@ public class TikTokenService : IService
     /// <exception cref="ArgumentOutOfRangeException">传入的模型文本如果不能转换为 OpenAI 指定的模型，则会抛出错误</exception>
     public int CalculateTokenLength(string text, string? model = null)
     {
-        return GetGptEncoding(model ?? Models.ChatGpt3_5Turbo).Encode(text).Count;
+        return GetGptEncoding(model ?? Models.Gpt_3_5_Turbo_16k).Encode(text).Count;
     }
 }
