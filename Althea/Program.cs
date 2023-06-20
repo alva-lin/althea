@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Minio;
-using OpenAI.GPT3.Extensions;
+using OpenAI.Extensions;
 using Serilog;
 
 // ReSharper disable VariableHidesOuterVariable

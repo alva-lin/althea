@@ -1,5 +1,5 @@
 ﻿using Althea.Core.Services;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.RequestModels;
 
 namespace Althea.Data.Domains.ChatDomain;
 
@@ -144,14 +144,14 @@ public class Chat : DeletableEntity<long>
 
     private static ChatMessage GetChatMessage(Message message)
     {
-        Func<string, ChatMessage> factory = message.Type switch
+        Func<string, string?, ChatMessage> factory = message.Type switch
         {
             MessageType.User => ChatMessage.FromUser,
             MessageType.Assistant => ChatMessage.FromAssistant,
             MessageType.System => ChatMessage.FromSystem,
             _ => throw new ArgumentOutOfRangeException()
         };
-        return factory(message.Content);
+        return factory(message.Content, null);
     }
 }
 

@@ -1,8 +1,6 @@
 ﻿using Althea.Infrastructure;
 using Althea.Infrastructure.DependencyInjection;
-
-using OpenAI.GPT3.ObjectModels;
-
+using OpenAI.ObjectModels;
 using SharpToken;
 
 // ReSharper disable InconsistentNaming
@@ -45,9 +43,10 @@ public class TikTokenService : IService
     {
         if (!_encodings.TryGetValue(name, out var encoding))
         {
-            encoding         = GptEncoding.GetEncoding(name);
+            encoding = GptEncoding.GetEncoding(name);
             _encodings[name] = encoding;
         }
+
         return encoding;
     }
 
@@ -102,7 +101,9 @@ public class TikTokenService : IService
                 encoding = TryGetGptEncoding(R50K_BASE);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(model), model, null);
+                encoding = TryGetGptEncoding(CL100K_BASE);
+                break;
+            // throw new ArgumentOutOfRangeException(nameof(model), model, null);
         }
 
         return encoding;
