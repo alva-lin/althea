@@ -138,7 +138,7 @@ public class ChatService : BasicService, IChatService
         var response = await _openAIService.ChatCompletion.CreateCompletion(new()
         {
             Messages = messages
-        }, Models.ChatGpt3_5Turbo, cancellationToken);
+        }, Models.Gpt_3_5_Turbo_16k_0613, cancellationToken);
 
         if (!response.Successful) return string.Empty;
 
@@ -269,7 +269,7 @@ public class ChatService : BasicService, IChatService
 
     private async Task<Chat> CreateChatAsync(string? model = null, CancellationToken cancellationToken = default)
     {
-        if (model != Models.ChatGpt3_5Turbo || model != Models.Gpt_4) model = "gpt-3.5-turbo-16k";
+        if (model != Models.Gpt_3_5_Turbo_16k || model != Models.Gpt_4) model = Models.Gpt_3_5_Turbo_16k;
 
         var chat = new Chat
         {
